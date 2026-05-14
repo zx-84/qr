@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR-maker</title>
+    <meta
+      name="description"
+      content="QR-maker genere des QR codes personnalises pour textes, Wi-Fi, contacts, emails, telephones et SMS."
+    >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;550;650;750;850&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      defer
+    ></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="app-title">
+        <div class="hero-copy">
+          <div class="brand-lockup">
+            <span class="brand-mark" aria-hidden="true">QR</span>
+            <p class="eyebrow">Simple, local, rapide</p>
+          </div>
+          <h1 id="app-title">QR-maker</h1>
+          <p class="intro">
+            Creez des QR codes propres pour partager un lien, un Wi-Fi, une carte de visite, un email, un numero, un SMS, un lieu ou un evenement.
+          </p>
+        </div>
+        <div class="privacy-note">
+          <span class="status-dot" aria-hidden="true"></span>
+          Donnees conservees uniquement dans ce navigateur
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Generateur de QR code">
+        <form class="panel generator-panel" id="qr-form">
+          <div class="section-heading">
+            <div>
+              <h2>Contenu</h2>
+              <p>Choisissez le type de QR code a generer.</p>
+            </div>
+          </div>
+
+          <div class="mode-switch" role="tablist" aria-label="Type de QR code">
+            <button class="mode-button active" type="button" data-mode="text" role="tab" aria-selected="true">Texte</button>
+            <button class="mode-button" type="button" data-mode="note" role="tab" aria-selected="false">Note</button>
+            <button class="mode-button" type="button" data-mode="wifi" role="tab" aria-selected="false">Wi-Fi</button>
+            <button class="mode-button" type="button" data-mode="vcard" role="tab" aria-selected="false">Contact</button>
+            <button class="mode-button" type="button" data-mode="email" role="tab" aria-selected="false">Email</button>
+            <button class="mode-button" type="button" data-mode="phone" role="tab" aria-selected="false">Tel</button>
+            <button class="mode-button" type="button" data-mode="sms" role="tab" aria-selected="false">SMS</button>
+            <button class="mode-button" type="button" data-mode="whatsapp" role="tab" aria-selected="false">WhatsApp</button>
+            <button class="mode-button" type="button" data-mode="location" role="tab" aria-selected="false">Lieu</button>
+            <button class="mode-button" type="button" data-mode="event" role="tab" aria-selected="false">Event</button>
+            <button class="mode-button" type="button" data-mode="social" role="tab" aria-selected="false">Social</button>
+            <button class="mode-button" type="button" data-mode="appstore" role="tab" aria-selected="false">App</button>
+          </div>
+
+          <div class="quick-tools">
+            <label class="field">
+              <span>Modele rapide</span>
+              <select id="template-select">
+                <option value="">Choisir un modele</option>
+                <option value="wifi-home">Wi-Fi maison</option>
+                <option value="business-card">Carte pro</option>
+                <option value="shared-note">Note partagee</option>
+                <option value="instagram">Lien Instagram</option>
+                <option value="restaurant-menu">Menu restaurant</option>
+                <option value="support">Support client</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="event">Evenement</option>
+                <option value="location">Localisation</option>
+                <option value="social">Reseau social</option>
+                <option value="appstore">App mobile</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Style rapide</span>
+              <select id="design-preset">
+                <option value="blue">Bleu</option>
+                <option value="classic">Classique</option>
+                <option value="premium">Noir premium</option>
+                <option value="pastel">Pastel</option>
+                <option value="print">Impression</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="mode-panel active" id="text-panel" data-panel="text">
+            <label class="field">
+              <span>Texte</span>
+              <textarea
+                id="free-text"
+                data-testid="free-text"
+                rows="7"
+                placeholder="Votre texte ou un lien"
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="mode-panel" id="note-panel" data-panel="note" hidden>
+            <p class="mode-note">Collez le lien d'une note deja partagee en ligne : iCloud Notes, Google Docs, Notion, OneNote, etc.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Service</span>
+                <select id="note-service">
+                  <option value="google-docs">Google Docs</option>
+                  <option value="icloud">iCloud Notes</option>
+                  <option value="notion">Notion</option>
+                  <option value="onenote">OneNote</option>
+                  <option value="other">Autre lien</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Lien de la note</span>
+                <input id="note-url" type="url" placeholder="https://...">
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="wifi-panel" data-panel="wifi" hidden>
+            <div class="field-grid">
+              <label class="field">
+                <span>Nom du reseau</span>
+                <input id="wifi-ssid" data-testid="wifi-ssid" type="text" autocomplete="off" placeholder="Maison">
+              </label>
+              <label class="field">
+                <span>Mot de passe</span>
+                <input id="wifi-password" type="password" autocomplete="new-password" placeholder="Optionnel">
+              </label>
+              <label class="field">
+                <span>Securite</span>
+                <select id="wifi-security">
+                  <option value="WPA">WPA/WPA2</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">Aucune</option>
+                </select>
+              </label>
+              <label class="toggle-field">
+                <input id="wifi-hidden" type="checkbox">
+                <span>Reseau cache</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="vcard-panel" data-panel="vcard" hidden>
+            <div class="field-grid">
+              <label class="field">
+                <span>Nom</span>
+                <input id="vcard-lastname" type="text" autocomplete="family-name" placeholder="Dupont">
+              </label>
+              <label class="field">
+                <span>Prenom</span>
+                <input id="vcard-firstname" type="text" autocomplete="given-name" placeholder="Marie">
+              </label>
+              <label class="field">
+                <span>Telephone</span>
+                <input id="vcard-phone" type="tel" autocomplete="tel" placeholder="+262 692 00 00 00">
+              </label>
+              <label class="field">
+                <span>Email</span>
+                <input id="vcard-email" type="email" autocomplete="email" placeholder="marie@example.com">
+              </label>
+              <label class="field">
+                <span>Organisation</span>
+                <input id="vcard-org" type="text" autocomplete="organization" placeholder="Entreprise">
+              </label>
+              <label class="field">
+                <span>Site web</span>
+                <input id="vcard-url" type="url" autocomplete="url" placeholder="https://exemple.com">
+              </label>
+              <label class="field full-field">
+                <span>Adresse</span>
+                <input id="vcard-address" type="text" autocomplete="street-address" placeholder="Adresse complete">
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="email-panel" data-panel="email" hidden>
+            <p class="mode-note">N'envoie rien automatiquement : l'application email s'ouvre avec les champs pre-remplis.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Destinataire</span>
+                <input id="email-to" type="email" placeholder="contact@example.com">
+              </label>
+              <label class="field">
+                <span>Sujet</span>
+                <input id="email-subject" type="text" placeholder="Demande d'information">
+              </label>
+              <label class="field full-field">
+                <span>Message</span>
+                <textarea id="email-body" rows="4" placeholder="Bonjour,"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="phone-panel" data-panel="phone" hidden>
+            <p class="mode-note">N'appelle pas automatiquement : le telephone affiche le numero avant confirmation.</p>
+            <label class="field">
+              <span>Numero de telephone</span>
+              <input id="phone-number" type="tel" placeholder="+262 692 00 00 00">
+            </label>
+          </div>
+
+          <div class="mode-panel" id="sms-panel" data-panel="sms" hidden>
+            <p class="mode-note">N'envoie rien automatiquement : l'application SMS s'ouvre avec le message pre-rempli.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Numero</span>
+                <input id="sms-number" type="tel" placeholder="+262 692 00 00 00">
+              </label>
+              <label class="field full-field">
+                <span>Message</span>
+                <textarea id="sms-message" rows="4" placeholder="Votre message"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="whatsapp-panel" data-panel="whatsapp" hidden>
+            <p class="mode-note">N'envoie rien automatiquement : WhatsApp s'ouvre avec le message pre-rempli.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Numero WhatsApp</span>
+                <input id="whatsapp-number" type="tel" placeholder="+262 692 00 00 00">
+              </label>
+              <label class="field full-field">
+                <span>Message</span>
+                <textarea id="whatsapp-message" rows="4" placeholder="Bonjour,"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="location-panel" data-panel="location" hidden>
+            <div class="field-grid">
+              <label class="field full-field">
+                <span>Adresse ou lieu</span>
+                <input id="location-query" type="text" placeholder="1 rue de Paris, Saint-Denis">
+              </label>
+              <label class="field">
+                <span>Latitude</span>
+                <input id="location-lat" type="text" inputmode="decimal" placeholder="-20.8789">
+              </label>
+              <label class="field">
+                <span>Longitude</span>
+                <input id="location-lng" type="text" inputmode="decimal" placeholder="55.4481">
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="event-panel" data-panel="event" hidden>
+            <div class="field-grid">
+              <label class="field full-field">
+                <span>Titre</span>
+                <input id="event-title" type="text" placeholder="Rendez-vous client">
+              </label>
+              <label class="field">
+                <span>Debut</span>
+                <input id="event-start" type="datetime-local">
+              </label>
+              <label class="field">
+                <span>Fin</span>
+                <input id="event-end" type="datetime-local">
+              </label>
+              <label class="field">
+                <span>Lieu</span>
+                <input id="event-location" type="text" placeholder="Bureau, salle, adresse">
+              </label>
+              <label class="field full-field">
+                <span>Description</span>
+                <textarea id="event-description" rows="4" placeholder="Details utiles"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="social-panel" data-panel="social" hidden>
+            <div class="field-grid">
+              <label class="field">
+                <span>Reseau</span>
+                <select id="social-network">
+                  <option value="instagram">Instagram</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="custom">Lien direct</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Identifiant ou lien</span>
+                <input id="social-value" type="text" placeholder="@votre_compte ou https://...">
+              </label>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="appstore-panel" data-panel="appstore" hidden>
+            <div class="field-grid">
+              <label class="field">
+                <span>Boutique</span>
+                <select id="appstore-target">
+                  <option value="ios">App Store</option>
+                  <option value="android">Play Store</option>
+                  <option value="custom">Lien universel</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Nom de l'app</span>
+                <input id="appstore-name" type="text" placeholder="Mon app">
+              </label>
+              <label class="field full-field">
+                <span>Lien</span>
+                <input id="appstore-url" type="url" placeholder="https://apps.apple.com/... ou https://play.google.com/...">
+              </label>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Nom dans l'historique</span>
+            <input id="history-name" type="text" placeholder="Ex : Wi-Fi maison, carte pro, menu restaurant">
+          </label>
+
+          <div class="settings-grid">
+            <section class="tool-card" aria-label="Reglages QR">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2>QR code</h2>
+                  <p>Couleurs, taille et lisibilite.</p>
+                </div>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Taille PNG</span>
+                  <select id="qr-size">
+                    <option value="512">512 px</option>
+                    <option value="768" selected>768 px</option>
+                    <option value="1024">1024 px</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Correction</span>
+                  <select id="qr-error-level">
+                    <option value="M">Moyenne</option>
+                    <option value="Q">Haute</option>
+                    <option value="H" selected>Maximale</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Couleur QR</span>
+                  <input id="qr-dark-color" type="color" value="#111827">
+                </label>
+                <label class="field">
+                  <span>Fond</span>
+                  <input id="qr-light-color" type="color" value="#ffffff">
+                </label>
+                <label class="field full-field range-field">
+                  <span>Marge <output id="qr-margin-output">32 px</output></span>
+                  <input id="qr-margin" type="range" min="8" max="80" step="4" value="32">
+                </label>
+              </div>
+            </section>
+
+            <section class="tool-card" aria-label="Personnalisation du logo">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2>Logo</h2>
+                  <p>Ajoutez un repere visuel au centre.</p>
+                </div>
+              </div>
+
+              <div class="logo-presets" id="logo-presets" role="radiogroup" aria-label="Logos de base">
+                <button class="logo-preset active" type="button" data-logo="none" aria-pressed="true">Aucun</button>
+                <button class="logo-preset" type="button" data-logo="qr" aria-pressed="false">QR</button>
+                <button class="logo-preset" type="button" data-logo="link" aria-pressed="false">Lien</button>
+                <button class="logo-preset" type="button" data-logo="wifi" aria-pressed="false">Wi-Fi</button>
+                <button class="logo-preset" type="button" data-logo="info" aria-pressed="false">Info</button>
+                <button class="logo-preset" type="button" data-logo="custom" aria-pressed="false">Personnalise</button>
+              </div>
+
+              <div class="custom-logo-panel" id="custom-logo-panel" hidden>
+                <div class="logo-source-grid">
+                  <label class="field file-field">
+                    <span>Importer</span>
+                    <input id="logo-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                  </label>
+                  <label class="field">
+                    <span>Via lien</span>
+                    <div class="url-field">
+                      <input id="logo-url" type="url" placeholder="https://exemple.com/logo.png">
+                      <button class="small-action" id="logo-url-button" type="button">Charger</button>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="logo-settings-panel" id="logo-settings-panel" hidden>
+                <div class="field-grid">
+                  <label class="field range-field">
+                    <span>Taille <output id="logo-size-output">22%</output></span>
+                    <input id="logo-size" type="range" min="12" max="32" step="1" value="22">
+                  </label>
+                  <label class="field range-field">
+                    <span>Arrondi <output id="logo-radius-output">20%</output></span>
+                    <input id="logo-radius" type="range" min="0" max="40" step="2" value="20">
+                  </label>
+                  <label class="toggle-field full-field">
+                    <input id="logo-background" type="checkbox" checked>
+                    <span>Fond blanc derriere le logo</span>
+                  </label>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <label class="field">
+            <span>Contenu encode</span>
+            <textarea id="encoded-output" rows="4" readonly></textarea>
+          </label>
+
+          <div class="scan-action" id="scan-action" hidden>
+            <span>Au scan</span>
+            <p id="scan-action-text"></p>
+          </div>
+
+          <div class="actions">
+            <button class="primary-action" id="download-button" type="button" disabled>Telecharger PNG</button>
+            <button class="secondary-action" id="download-svg-button" type="button" disabled>Telecharger SVG</button>
+            <button class="secondary-action" id="copy-qr-button" type="button" disabled>Copier le QR</button>
+            <button class="secondary-action" id="copy-button" type="button" disabled>Copier le contenu</button>
+            <button class="secondary-action" id="test-link-button" type="button" disabled>Tester le lien</button>
+            <button class="ghost-action" id="reset-button" type="button">Reinitialiser</button>
+          </div>
+          <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+        </form>
+
+        <aside class="panel preview-panel" aria-label="Apercu du QR code">
+          <div class="section-heading">
+            <div>
+              <h2>Apercu</h2>
+              <p>Mis a jour automatiquement.</p>
+            </div>
+          </div>
+          <div class="qr-stage">
+            <div id="qrcode" class="qr-box" data-testid="qr-code" aria-label="QR code genere"></div>
+            <p class="empty-state" id="empty-state">Ajoutez un contenu pour afficher le QR code.</p>
+          </div>
+          <div class="quality-panel" id="quality-panel" hidden>
+            <span class="quality-dot" id="quality-dot" aria-hidden="true"></span>
+            <p id="quality-message"></p>
+          </div>
+          <div class="scan-check-panel" id="scan-check-panel" hidden>
+            <span class="quality-dot" id="scan-check-dot" aria-hidden="true"></span>
+            <p id="scan-check-message"></p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel history-panel" aria-labelledby="history-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="history-title">Historique local</h2>
+            <p>Derniers QR codes generes sur cet appareil.</p>
+          </div>
+          <div class="history-toolbar">
+            <select id="history-filter" aria-label="Filtrer l'historique">
+              <option value="all">Tous</option>
+              <option value="text">Texte</option>
+              <option value="note">Note</option>
+              <option value="wifi">Wi-Fi</option>
+              <option value="vcard">Contact</option>
+              <option value="email">Email</option>
+              <option value="phone">Tel</option>
+              <option value="sms">SMS</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="location">Lieu</option>
+              <option value="event">Event</option>
+              <option value="social">Social</option>
+              <option value="appstore">App</option>
+            </select>
+            <button class="ghost-action" id="clear-history-button" type="button">Tout effacer</button>
+          </div>
+        </div>
+        <div class="history-list" id="history-list"></div>
+      </section>
+    </main>
+  </body>
+</html>
