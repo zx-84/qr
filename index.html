@@ -49,14 +49,18 @@
         </div>
       </section>
 
-      <section class="panel history-panel favorites-panel" aria-labelledby="favorites-title">
+      <section class="panel favorite-panel favorites-panel" aria-labelledby="favorites-title">
         <div class="section-heading">
           <div>
             <h2 id="favorites-title">Favoris</h2>
             <p>QR codes epingles pour les retrouver vite.</p>
           </div>
         </div>
-        <div class="history-list favorites-list" id="favorites-list"></div>
+        <label class="field favorite-search-field">
+          <span>Rechercher</span>
+          <input id="favorites-search" type="search" placeholder="Nom, type ou contenu">
+        </label>
+        <div class="favorite-list favorites-list" id="favorites-list"></div>
       </section>
 
       <section class="workspace" aria-label="Generateur de QR code">
@@ -80,35 +84,29 @@
             <button class="mode-button" type="button" data-mode="event" role="tab" aria-selected="false">Event</button>
             <button class="mode-button" type="button" data-mode="social" role="tab" aria-selected="false">Social</button>
             <button class="mode-button" type="button" data-mode="appstore" role="tab" aria-selected="false">App</button>
+            <button class="mode-button" type="button" data-mode="media" role="tab" aria-selected="false">Media</button>
           </div>
+          <label class="field mode-select-field">
+            <span>Type de QR</span>
+            <select id="mode-select" aria-label="Type de QR code">
+              <option value="text">Texte</option>
+              <option value="wifi">Wi-Fi</option>
+              <option value="vcard">Contact</option>
+              <option value="email">Email</option>
+              <option value="phone">Tel</option>
+              <option value="sms">SMS</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="location">Lieu</option>
+              <option value="event">Event</option>
+              <option value="social">Social</option>
+              <option value="appstore">App</option>
+              <option value="media">Media</option>
+            </select>
+          </label>
 
-          <div class="quick-tools">
-            <label class="field">
-              <span>Modele rapide</span>
-              <select id="template-select">
-                <option value="">Choisir un modele</option>
-                <option value="wifi-home">Wi-Fi maison</option>
-                <option value="business-card">Carte pro</option>
-                <option value="instagram">Lien Instagram</option>
-                <option value="restaurant-menu">Menu restaurant</option>
-                <option value="support">Support client</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="event">Evenement</option>
-                <option value="location">Localisation</option>
-                <option value="social">Reseau social</option>
-                <option value="appstore">App mobile</option>
-              </select>
-            </label>
-            <label class="field">
-              <span>Style rapide</span>
-              <select id="design-preset">
-                <option value="blue">Bleu</option>
-                <option value="classic">Classique</option>
-                <option value="premium">Noir premium</option>
-                <option value="pastel">Pastel</option>
-                <option value="print">Impression</option>
-              </select>
-            </label>
+          <div class="form-section-title">
+            <span>01</span>
+            <strong>Type de contenu</strong>
           </div>
 
           <div class="mode-panel active" id="text-panel" data-panel="text">
@@ -318,6 +316,30 @@
             </div>
           </div>
 
+          <div class="mode-panel" id="media-panel" data-panel="media" hidden>
+            <p class="mode-note">Collez un lien public vers une image, une video, un PDF ou un fichier deja en ligne.</p>
+            <div class="field-grid">
+              <label class="field">
+                <span>Type de media</span>
+                <select id="media-type">
+                  <option value="image">Image</option>
+                  <option value="video">Video</option>
+                  <option value="pdf">PDF</option>
+                  <option value="file">Fichier</option>
+                </select>
+              </label>
+              <label class="field full-field">
+                <span>Lien public</span>
+                <input id="media-url" type="url" placeholder="https://exemple.com/image.jpg">
+              </label>
+            </div>
+          </div>
+
+          <div class="form-section-title">
+            <span>02</span>
+            <strong>Personnalisation</strong>
+          </div>
+
           <div class="settings-grid">
             <section class="tool-card" aria-label="Reglages QR">
               <div class="section-heading compact-heading">
@@ -350,6 +372,48 @@
                 <label class="field">
                   <span>Fond</span>
                   <input id="qr-light-color" type="color" value="#ffffff">
+                </label>
+                <label class="field">
+                  <span>Style visuel</span>
+                  <select id="qr-style"></select>
+                </label>
+                <div class="style-picker full-field">
+                  <button class="secondary-action style-picker-button" id="style-picker-button" type="button">
+                    Choisir un style avec exemples
+                  </button>
+                  <div class="style-popover" id="style-popover" hidden>
+                    <div class="style-popover-head">
+                      <div>
+                        <strong>Styles QR</strong>
+                        <span>Exemples generes avec un vrai QR code</span>
+                      </div>
+                      <button class="small-action" id="style-close-button" type="button">Fermer</button>
+                    </div>
+                    <div class="style-import-box">
+                      <div>
+                        <strong>Importer un style depuis une image</strong>
+                        <span>Analyse les couleurs et utilise l'image comme texture du QR.</span>
+                      </div>
+                      <div class="style-import-grid">
+                        <label class="field file-field">
+                          <span>Importer image</span>
+                          <input id="style-image-file" type="file" accept="image/png,image/jpeg,image/webp">
+                        </label>
+                        <label class="field">
+                          <span>Via lien</span>
+                          <div class="url-field">
+                            <input id="style-image-url" type="url" placeholder="https://exemple.com/qr-style.jpg">
+                            <button class="small-action" id="style-image-url-button" type="button">Analyser</button>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="style-gallery" id="style-gallery" aria-label="Exemples de styles QR"></div>
+                  </div>
+                </div>
+                <label class="field range-field">
+                  <span>Douceur <output id="qr-roundness-output">32%</output></span>
+                  <input id="qr-roundness" type="range" min="0" max="48" step="4" value="32">
                 </label>
                 <label class="field full-field range-field">
                   <span>Marge <output id="qr-margin-output">32 px</output></span>
@@ -410,31 +474,48 @@
             </section>
           </div>
 
-          <label class="field">
-            <span>Contenu encode</span>
-            <textarea id="encoded-output" rows="4" readonly></textarea>
-          </label>
+          <div class="output-section form-section">
+            <div class="form-section-title">
+              <span>03</span>
+              <strong>Sortie</strong>
+            </div>
 
-          <div class="scan-action" id="scan-action" hidden>
-            <span>Au scan</span>
-            <p id="scan-action-text"></p>
-          </div>
-
-          <div class="actions">
-            <button class="primary-action" id="download-button" type="button" disabled>Telecharger PNG</button>
-            <button class="secondary-action" id="download-svg-button" type="button" disabled>Telecharger SVG</button>
-            <button class="secondary-action" id="copy-qr-button" type="button" disabled>Copier le QR</button>
-            <button class="secondary-action" id="copy-button" type="button" disabled>Copier le contenu</button>
-            <button class="secondary-action" id="test-link-button" type="button" disabled>Tester le lien</button>
-            <button class="secondary-action" id="favorite-current-button" type="button" disabled>Mettre en favoris</button>
-            <button class="ghost-action" id="reset-button" type="button">Reinitialiser</button>
-          </div>
-          <div class="favorite-form" id="favorite-form" hidden>
             <label class="field">
-              <span>Nom du favori</span>
-              <input id="history-name" type="text" placeholder="Ex : Wi-Fi maison, carte pro, menu restaurant">
+              <span>Contenu encode</span>
+              <textarea id="encoded-output" rows="4" readonly></textarea>
             </label>
-            <button class="primary-action" id="confirm-favorite-button" type="button">Ajouter aux favoris</button>
+
+            <div class="scan-action" id="scan-action" hidden>
+              <span>Au scan</span>
+              <p id="scan-action-text"></p>
+            </div>
+
+            <div class="link-insight" id="link-insight" hidden>
+              <span id="link-kind">Lien detecte</span>
+              <p id="link-insight-text"></p>
+            </div>
+
+            <div class="validation-panel" id="validation-panel" hidden>
+              <span class="quality-dot warning" aria-hidden="true"></span>
+              <p id="validation-message"></p>
+            </div>
+
+            <div class="actions">
+              <button class="primary-action" id="download-button" type="button" disabled>Telecharger PNG</button>
+              <button class="secondary-action" id="download-svg-button" type="button" disabled>Telecharger SVG</button>
+              <button class="secondary-action" id="copy-qr-button" type="button" disabled>Copier le QR</button>
+              <button class="secondary-action" id="copy-button" type="button" disabled>Copier le contenu</button>
+              <button class="secondary-action" id="test-link-button" type="button" disabled>Tester le lien</button>
+              <button class="secondary-action" id="favorite-current-button" type="button" disabled>Mettre en favoris</button>
+              <button class="ghost-action" id="reset-button" type="button">Reinitialiser</button>
+            </div>
+            <div class="favorite-form" id="favorite-form" hidden>
+              <label class="field">
+                <span>Nom du favori</span>
+              <input id="favorite-name" type="text" placeholder="Ex : Wi-Fi maison, carte pro, menu restaurant">
+              </label>
+              <button class="primary-action" id="confirm-favorite-button" type="button">Ajouter aux favoris</button>
+            </div>
           </div>
           <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
         </form>

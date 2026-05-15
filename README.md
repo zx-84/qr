@@ -1,12 +1,11 @@
 # QR-maker
 
-QR-maker est une application web statique pour generer rapidement des QR codes utiles au quotidien. Elle fonctionne sans backend : la generation se fait dans le navigateur et l'historique reste dans `localStorage`.
+QR-maker est une application web statique pour generer rapidement des QR codes utiles au quotidien. Elle fonctionne sans backend : la generation se fait dans le navigateur et les favoris restent dans `localStorage`.
 
 ## Fonctionnalites
 
 - Generation de QR code depuis un lien ou un texte libre.
 - Texte libre encode en texte simple, lisible et copiable par l'application de scan.
-- Mode Note pour ouvrir une note deja partagee en ligne, avec Google Docs par defaut.
 - Mode Wi-Fi avec SSID, mot de passe, securite WPA/WEP/aucune et reseau cache.
 - Mode contact vCard avec nom, telephone, email, organisation, site et adresse.
 - Modes email, telephone et SMS avec champs dedies.
@@ -15,11 +14,16 @@ QR-maker est une application web statique pour generer rapidement des QR codes u
 - Mode evenement calendrier au format iCalendar.
 - Encarts dedies aux reseaux sociaux : Instagram, TikTok, LinkedIn, YouTube, Facebook et lien direct.
 - Mode App Store / Play Store / lien universel.
+- Mode media par lien public pour image, video, PDF ou fichier deja en ligne.
 - Badges de clarification indiquant que Email, SMS et Tel n'envoient ou n'appellent rien automatiquement.
 - Bouton Tester le lien pour ouvrir le contenu encode quand il s'agit d'un lien testable.
 - Apercu clair de ce que le scan fera pour chaque type de QR code.
-- Modeles rapides pour Wi-Fi maison, carte pro, note Google Docs, Instagram, menu, support, evenement, localisation, reseaux sociaux et app mobile.
-- Presets de design : bleu, classique, noir premium, pastel et impression.
+- Apercu du type de lien detecte, avec rappel pour les fichiers partages publiquement.
+- Validations utiles pour email, telephone, WhatsApp, Wi-Fi, evenement, app store et media.
+- Fenetre de styles QR avec de vraies vignettes generees : classique, arrondi, points, classy, affiche coloree, ocean, berry, neon, soft, encre et autres variantes.
+- Import de style depuis une image locale ou un lien d'image, avec analyse des couleurs principales.
+- Styles avec textures d'image dans les modules du QR : vagues, marbre, papier, mosaique et aurore.
+- Reglage de douceur des modules pour styliser le rendu sans changer le contenu encode.
 - Apercu instantane du QR code.
 - Reglages de taille PNG, marge, couleur du QR, couleur de fond et correction d'erreur.
 - Logos de base integrables au centre du QR code.
@@ -31,7 +35,11 @@ QR-maker est une application web statique pour generer rapidement des QR codes u
 - Telechargement en SVG contenant le rendu actuel du QR code.
 - Copie du QR code comme image quand le navigateur le supporte.
 - Copie du contenu encode dans le presse-papiers.
-- Historique local nommable, filtrable par type, avec favoris, reprise, copie QR, copie du contenu et suppression.
+- Zone Favoris en haut de page avec bouton Mettre en favoris, reprise, tri par fleches, copie QR et suppression.
+- Recherche dans les favoris.
+- Copie du contenu encode depuis chaque favori.
+- Stockage local nettoye : seuls les favoris sont conserves.
+- Menu de type de QR plus compact sur mobile.
 - Bouton de reinitialisation du formulaire.
 - Interface responsive desktop et mobile.
 
@@ -73,10 +81,10 @@ Captures a ajouter plus tard :
 - Mode reseaux sociaux.
 - Mode app mobile.
 - Reglages QR et logo.
-- Historique local filtre.
+- Favoris locaux.
 
 ## Confidentialite
 
-QR-maker ne necessite pas de backend et ne stocke rien en ligne. Les QR codes sont generes dans le navigateur. L'historique est conserve uniquement dans le stockage local du navigateur utilise.
+QR-maker ne necessite pas de backend et ne stocke rien en ligne. Les QR codes sont generes dans le navigateur. Les favoris sont conserves uniquement dans le stockage local du navigateur utilise.
 
-Note : les logos importes depuis un fichier local sont inclus dans le PNG et l'historique local. Pour un logo charge via URL, le telechargement PNG/SVG ou la copie image peut etre bloque par le navigateur si le serveur distant ne permet pas l'utilisation cross-origin de l'image.
+Note : les logos importes depuis un fichier local sont inclus dans le PNG et les favoris locaux. Pour un logo charge via URL, le telechargement PNG/SVG ou la copie image peut etre bloque par le navigateur si le serveur distant ne permet pas l'utilisation cross-origin de l'image.

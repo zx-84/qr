@@ -1,5 +1,5 @@
 const HISTORY_KEY = "qr-maker-history";
-const MAX_HISTORY_ITEMS = 10;
+const MAX_FAVORITES = 24;
 const PREVIEW_SIZE = 768;
 const DISPLAY_SIZE = 320;
 
@@ -8,6 +8,36 @@ const LOGO_PRESETS = {
   link: buildLogoDataUri("LINK", "#0d4fb6", "#5b8def"),
   wifi: buildLogoDataUri("WIFI", "#0e7490", "#14b8d2"),
   info: buildLogoDataUri("INFO", "#f46d4f", "#ff9b73"),
+};
+
+const STYLE_PRESETS = {
+  square: { label: "Classique", dark: "#000000", light: "#ffffff", roundness: 0, shape: "square" },
+  rounded: { label: "Arrondi", dark: "#1769e0", light: "#ffffff", roundness: 32, shape: "rounded" },
+  dots: { label: "Points", dark: "#5b8def", light: "#fff7fb", roundness: 48, shape: "dots" },
+  classy: { label: "Classy", dark: "#050816", light: "#f7f8fb", roundness: 28, shape: "rounded", gradient: ["#050816", "#14b8d2"] },
+  poster: { label: "Affiche", dark: "#5f1846", light: "#fff7fb", roundness: 36, shape: "rounded", background: "#fff7fb", gradient: ["#5f1846", "#7b245d", "#1769e0"] },
+  ocean: { label: "Ocean", dark: "#075985", light: "#ecfeff", roundness: 34, shape: "rounded", background: "#ecfeff", gradient: ["#075985", "#0891b2", "#22d3ee"] },
+  berry: { label: "Berry", dark: "#7f1d5a", light: "#fff1f7", roundness: 40, shape: "rounded", background: "#fff1f7", gradient: ["#7f1d5a", "#be185d", "#f97316"] },
+  neon: { label: "Neon", dark: "#111827", light: "#f7fbff", roundness: 24, shape: "rounded", background: "#f7fbff", gradient: ["#111827", "#1769e0", "#14b8d2"] },
+  soft: { label: "Soft", dark: "#315b7c", light: "#f8fbff", roundness: 44, shape: "dots", background: "#f8fbff", gradient: ["#315b7c", "#5b8def"] },
+  ink: { label: "Encre", dark: "#172033", light: "#fbfaf7", roundness: 18, shape: "rounded", background: "#fbfaf7", gradient: ["#172033", "#5f1846"] },
+  forest: { label: "Forest", dark: "#14532d", light: "#f0fdf4", roundness: 30, shape: "rounded", background: "#f0fdf4", gradient: ["#14532d", "#22a06b"] },
+  sunset: { label: "Sunset", dark: "#9a3412", light: "#fff7ed", roundness: 36, shape: "rounded", background: "#fff7ed", gradient: ["#9a3412", "#f46d4f", "#f59e0b"] },
+  violet: { label: "Violet", dark: "#4c1d95", light: "#faf5ff", roundness: 34, shape: "rounded", background: "#faf5ff", gradient: ["#4c1d95", "#7c3aed"] },
+  slate: { label: "Slate", dark: "#0f172a", light: "#f8fafc", roundness: 16, shape: "rounded", background: "#f8fafc", gradient: ["#0f172a", "#475569"] },
+  candy: { label: "Candy", dark: "#be185d", light: "#fff7fb", roundness: 46, shape: "dots", background: "#fff7fb", gradient: ["#be185d", "#fb7185"] },
+  mint: { label: "Mint", dark: "#0f766e", light: "#f0fdfa", roundness: 42, shape: "dots", background: "#f0fdfa", gradient: ["#0f766e", "#2dd4bf"] },
+  gold: { label: "Gold", dark: "#713f12", light: "#fffbea", roundness: 24, shape: "rounded", background: "#fffbea", gradient: ["#713f12", "#d97706"] },
+  rose: { label: "Rose", dark: "#9f1239", light: "#fff1f2", roundness: 38, shape: "rounded", background: "#fff1f2", gradient: ["#9f1239", "#f43f5e"] },
+  ice: { label: "Ice", dark: "#155e75", light: "#f0fdff", roundness: 46, shape: "dots", background: "#f0fdff", gradient: ["#155e75", "#67e8f9"] },
+  mono: { label: "Mono", dark: "#262626", light: "#fafafa", roundness: 8, shape: "square" },
+  night: { label: "Night", dark: "#e5e7eb", light: "#111827", roundness: 24, shape: "rounded", background: "#111827", gradient: ["#e5e7eb", "#93c5fd"] },
+  coral: { label: "Corail", dark: "#c2410c", light: "#fff5f0", roundness: 36, shape: "rounded", background: "#fff5f0", gradient: ["#c2410c", "#f46d4f"] },
+  waves: { label: "Image vagues", dark: "#075985", light: "#effcff", roundness: 36, shape: "rounded", background: "#effcff", texture: "waves" },
+  marble: { label: "Image marbre", dark: "#334155", light: "#f8fafc", roundness: 22, shape: "rounded", background: "#f8fafc", texture: "marble" },
+  paper: { label: "Image papier", dark: "#713f12", light: "#fffbea", roundness: 18, shape: "square", background: "#fffbea", texture: "paper" },
+  mosaic: { label: "Image mosaique", dark: "#4c1d95", light: "#faf5ff", roundness: 34, shape: "rounded", background: "#faf5ff", texture: "mosaic" },
+  aurora: { label: "Image aurore", dark: "#064e3b", light: "#ecfdf5", roundness: 42, shape: "dots", background: "#ecfdf5", texture: "aurora" },
 };
 
 const MODE_LABELS = {
@@ -22,6 +52,7 @@ const MODE_LABELS = {
   event: "Event",
   social: "Social",
   appstore: "App",
+  media: "Media",
 };
 
 const state = {
@@ -29,12 +60,14 @@ const state = {
   encoded: "",
   logoSource: "",
   logoType: "none",
-  history: readHistory(),
+  styleImageSource: "",
+  favorites: readFavorites(),
   renderVersion: 0,
 };
 
 const elements = {
   modeButtons: document.querySelectorAll(".mode-button"),
+  modeSelect: document.querySelector("#mode-select"),
   panels: document.querySelectorAll(".mode-panel"),
   qrHost: document.querySelector("#qrcode"),
   emptyState: document.querySelector("#empty-state"),
@@ -48,6 +81,11 @@ const elements = {
   scanCheckMessage: document.querySelector("#scan-check-message"),
   scanAction: document.querySelector("#scan-action"),
   scanActionText: document.querySelector("#scan-action-text"),
+  linkInsight: document.querySelector("#link-insight"),
+  linkKind: document.querySelector("#link-kind"),
+  linkInsightText: document.querySelector("#link-insight-text"),
+  validationPanel: document.querySelector("#validation-panel"),
+  validationMessage: document.querySelector("#validation-message"),
   downloadButton: document.querySelector("#download-button"),
   downloadSvgButton: document.querySelector("#download-svg-button"),
   copyQrButton: document.querySelector("#copy-qr-button"),
@@ -58,17 +96,16 @@ const elements = {
   confirmFavoriteButton: document.querySelector("#confirm-favorite-button"),
   resetButton: document.querySelector("#reset-button"),
   favoritesList: document.querySelector("#favorites-list"),
+  favoritesSearch: document.querySelector("#favorites-search"),
   logoPresets: document.querySelectorAll(".logo-preset"),
   customLogoPanel: document.querySelector("#custom-logo-panel"),
   logoSettingsPanel: document.querySelector("#logo-settings-panel"),
   logoFile: document.querySelector("#logo-file"),
   logoUrl: document.querySelector("#logo-url"),
   logoUrlButton: document.querySelector("#logo-url-button"),
-  templateSelect: document.querySelector("#template-select"),
-  designPreset: document.querySelector("#design-preset"),
   formInputs: document.querySelectorAll("input, select, textarea"),
   freeText: document.querySelector("#free-text"),
-  historyName: document.querySelector("#history-name"),
+  favoriteName: document.querySelector("#favorite-name"),
   wifiSsid: document.querySelector("#wifi-ssid"),
   wifiPassword: document.querySelector("#wifi-password"),
   wifiSecurity: document.querySelector("#wifi-security"),
@@ -101,10 +138,22 @@ const elements = {
   appstoreTarget: document.querySelector("#appstore-target"),
   appstoreName: document.querySelector("#appstore-name"),
   appstoreUrl: document.querySelector("#appstore-url"),
+  mediaType: document.querySelector("#media-type"),
+  mediaUrl: document.querySelector("#media-url"),
   qrSize: document.querySelector("#qr-size"),
   qrErrorLevel: document.querySelector("#qr-error-level"),
   qrDarkColor: document.querySelector("#qr-dark-color"),
   qrLightColor: document.querySelector("#qr-light-color"),
+  qrStyle: document.querySelector("#qr-style"),
+  stylePickerButton: document.querySelector("#style-picker-button"),
+  styleCloseButton: document.querySelector("#style-close-button"),
+  stylePopover: document.querySelector("#style-popover"),
+  styleGallery: document.querySelector("#style-gallery"),
+  styleImageFile: document.querySelector("#style-image-file"),
+  styleImageUrl: document.querySelector("#style-image-url"),
+  styleImageUrlButton: document.querySelector("#style-image-url-button"),
+  qrRoundness: document.querySelector("#qr-roundness"),
+  qrRoundnessOutput: document.querySelector("#qr-roundness-output"),
   qrMargin: document.querySelector("#qr-margin"),
   qrMarginOutput: document.querySelector("#qr-margin-output"),
   logoSize: document.querySelector("#logo-size"),
@@ -115,19 +164,25 @@ const elements = {
 };
 
 window.addEventListener("load", () => {
+  renderStyleOptions();
   bindEvents();
   syncRangeOutputs();
-  renderHistory();
+  syncStyleCards();
+  writeFavorites();
+  renderFavorites();
   updateQr();
+  renderStyleThumbnails();
 });
 
 function bindEvents() {
   elements.modeButtons.forEach((button) => {
     button.addEventListener("click", () => setMode(button.dataset.mode));
   });
+  elements.modeSelect.addEventListener("change", () => setMode(elements.modeSelect.value));
+  elements.favoritesSearch.addEventListener("input", renderFavorites);
 
   elements.formInputs.forEach((input) => {
-    if (["logo-file", "logo-url", "template-select", "design-preset"].includes(input.id)) {
+    if (["logo-file", "logo-url", "mode-select", "favorites-search", "style-image-file", "style-image-url"].includes(input.id)) {
       return;
     }
 
@@ -137,6 +192,17 @@ function bindEvents() {
 
   elements.logoPresets.forEach((button) => {
     button.addEventListener("click", () => setLogoPreset(button.dataset.logo));
+  });
+  elements.stylePickerButton.addEventListener("click", toggleStylePopover);
+  elements.styleCloseButton.addEventListener("click", closeStylePopover);
+  elements.styleGallery.addEventListener("click", handleStyleGalleryClick);
+  elements.styleImageFile.addEventListener("change", handleStyleImageUpload);
+  elements.styleImageUrlButton.addEventListener("click", handleStyleImageUrl);
+  elements.styleImageUrl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleStyleImageUrl();
+    }
   });
 
   elements.logoFile.addEventListener("change", handleLogoUpload);
@@ -156,19 +222,273 @@ function bindEvents() {
   elements.favoriteCurrentButton.addEventListener("click", showFavoriteForm);
   elements.confirmFavoriteButton.addEventListener("click", favoriteCurrentQr);
   elements.resetButton.addEventListener("click", resetForm);
-  elements.templateSelect.addEventListener("change", applyTemplate);
-  elements.designPreset.addEventListener("change", applyDesignPreset);
 }
 
-function handleFormInput() {
+function handleFormInput(event) {
+  if (event?.target?.id === "qr-style") {
+    state.styleImageSource = "";
+    applyStyleDefaults(elements.qrStyle.value);
+  }
+
   syncRangeOutputs();
+  syncStyleCards();
   updateQr();
 }
 
 function syncRangeOutputs() {
   elements.qrMarginOutput.textContent = `${elements.qrMargin.value} px`;
+  elements.qrRoundnessOutput.textContent = `${elements.qrRoundness.value}%`;
   elements.logoSizeOutput.textContent = `${elements.logoSize.value}%`;
   elements.logoRadiusOutput.textContent = `${elements.logoRadius.value}%`;
+}
+
+function setQrStyle(style) {
+  state.styleImageSource = "";
+  elements.qrStyle.value = style;
+  applyStyleDefaults(style);
+  syncRangeOutputs();
+  syncStyleCards();
+  updateQr();
+}
+
+function syncStyleCards() {
+  elements.styleGallery.querySelectorAll(".style-card").forEach((button) => {
+    button.classList.toggle("active", button.dataset.style === elements.qrStyle.value);
+  });
+}
+
+function applyStyleDefaults(style) {
+  const selected = STYLE_PRESETS[style];
+
+  if (!selected) {
+    elements.qrRoundness.value = "32";
+    return;
+  }
+
+  elements.qrDarkColor.value = selected.dark;
+  elements.qrLightColor.value = selected.light;
+  elements.qrRoundness.value = String(selected.roundness);
+}
+
+function renderStyleOptions() {
+  elements.qrStyle.innerHTML = "";
+  elements.styleGallery.innerHTML = "";
+
+  const customOption = document.createElement("option");
+  customOption.value = "custom";
+  customOption.textContent = "Importe depuis image";
+  elements.qrStyle.appendChild(customOption);
+
+  Object.entries(STYLE_PRESETS).forEach(([key, preset]) => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = preset.label;
+    elements.qrStyle.appendChild(option);
+
+    const button = document.createElement("button");
+    button.className = "style-card";
+    button.type = "button";
+    button.dataset.style = key;
+
+    const preview = document.createElement("span");
+    preview.className = "style-preview";
+    preview.dataset.preview = key;
+    preview.textContent = "QR";
+
+    const label = document.createElement("span");
+    label.textContent = preset.label;
+
+    button.append(preview, label);
+    elements.styleGallery.appendChild(button);
+  });
+
+  elements.qrStyle.value = "rounded";
+}
+
+async function renderStyleThumbnails() {
+  if (typeof QRCode === "undefined") {
+    return;
+  }
+
+  for (const [key, preset] of Object.entries(STYLE_PRESETS)) {
+    const host = elements.styleGallery.querySelector(`[data-preview="${key}"]`);
+    if (!host) {
+      continue;
+    }
+
+    try {
+      const canvas = await renderQrCanvas("https://QR-maker.app", stylePreviewSettings(preset, key), "", 88);
+      host.textContent = "";
+      host.appendChild(canvas);
+    } catch (error) {
+      host.textContent = "QR";
+    }
+  }
+}
+
+function stylePreviewSettings(preset, key) {
+  return {
+    outputSize: 88,
+    margin: 8,
+    errorLevel: "H",
+    darkColor: preset.dark,
+    lightColor: preset.light,
+    qrStyle: key,
+    qrRoundness: preset.roundness / 100,
+    qrShape: preset.shape,
+    qrGradient: preset.gradient,
+    qrBackground: preset.background,
+    qrTexture: preset.texture,
+    logoSizeRatio: 0.2,
+    logoRadiusRatio: 0.2,
+    logoBackground: true,
+  };
+}
+
+function toggleStylePopover() {
+  elements.stylePopover.hidden = !elements.stylePopover.hidden;
+}
+
+function closeStylePopover() {
+  elements.stylePopover.hidden = true;
+}
+
+function handleStyleGalleryClick(event) {
+  const button = event.target.closest(".style-card");
+  if (!button) {
+    return;
+  }
+
+  setQrStyle(button.dataset.style);
+  closeStylePopover();
+}
+
+function handleStyleImageUpload() {
+  const file = elements.styleImageFile.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", async () => {
+    await importStyleFromImage(String(reader.result));
+  });
+  reader.readAsDataURL(file);
+}
+
+async function handleStyleImageUrl() {
+  const url = elements.styleImageUrl.value.trim();
+  if (!url) {
+    setFeedback("Ajoutez un lien d'image a analyser.");
+    return;
+  }
+
+  try {
+    await importStyleFromImage(new URL(url).href, true);
+  } catch (error) {
+    setFeedback("Lien d'image invalide.");
+  }
+}
+
+async function importStyleFromImage(source, fromUrl = false) {
+  try {
+    const image = fromUrl
+      ? await loadImage(source, "anonymous")
+      : await loadImage(source);
+    const palette = extractImagePalette(image, source);
+    applyImportedStyle(palette);
+    setFeedback("Style importe depuis l'image.");
+  } catch (error) {
+    const message = fromUrl
+      ? "Analyse bloquee par ce site. Importez l'image depuis votre appareil."
+      : "Impossible d'analyser cette image.";
+    setFeedback(message);
+  }
+}
+
+function extractImagePalette(image, source) {
+  const size = 96;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(image, 0, 0, size, size);
+
+  const data = context.getImageData(0, 0, size, size).data;
+  const samples = [];
+
+  for (let index = 0; index < data.length; index += 16) {
+    const alpha = data[index + 3];
+    if (alpha < 180) {
+      continue;
+    }
+
+    const rgb = [data[index], data[index + 1], data[index + 2]];
+    const luminance = getRgbLuminance(rgb);
+    const saturation = getRgbSaturation(rgb);
+    samples.push({ rgb, luminance, saturation });
+  }
+
+  const colorful = samples
+    .filter((sample) => sample.saturation > 0.12)
+    .sort((a, b) => b.saturation - a.saturation);
+  const dark = samples
+    .filter((sample) => sample.luminance < 0.54)
+    .sort((a, b) => b.saturation - a.saturation || a.luminance - b.luminance);
+  const light = samples
+    .filter((sample) => sample.luminance > 0.68)
+    .sort((a, b) => a.saturation - b.saturation || b.luminance - a.luminance);
+
+  const darkColor = rgbToHex((colorful[0] || dark[0] || samples[0])?.rgb || [23, 105, 224]);
+  const accentColor = rgbToHex((colorful[8] || colorful[1] || dark[1] || samples[1])?.rgb || [20, 184, 210]);
+  const lightColor = rgbToHex((light[0] || samples.sort((a, b) => b.luminance - a.luminance)[0])?.rgb || [255, 255, 255]);
+
+  return {
+    source,
+    darkColor,
+    accentColor,
+    lightColor,
+    saturation: average(samples.map((sample) => sample.saturation)),
+    contrast: getContrastRatio(darkColor, lightColor),
+  };
+}
+
+function applyImportedStyle(palette) {
+  state.styleImageSource = palette.source;
+  elements.qrStyle.value = "custom";
+  elements.qrDarkColor.value = ensureReadableColor(palette.darkColor, palette.lightColor);
+  elements.qrLightColor.value = palette.lightColor;
+  elements.qrRoundness.value = palette.saturation > 0.35 ? "40" : "28";
+  syncRangeOutputs();
+  syncStyleCards();
+  updateQr();
+}
+
+function ensureReadableColor(darkColor, lightColor) {
+  return getContrastRatio(darkColor, lightColor) >= 3.5 ? darkColor : "#111827";
+}
+
+function getRgbLuminance(rgb) {
+  const adjusted = rgb.map((value) => {
+    const channel = value / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return adjusted[0] * 0.2126 + adjusted[1] * 0.7152 + adjusted[2] * 0.0722;
+}
+
+function getRgbSaturation(rgb) {
+  const values = rgb.map((value) => value / 255);
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  return max === 0 ? 0 : (max - min) / max;
+}
+
+function rgbToHex(rgb) {
+  return `#${rgb.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function average(values) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
 function setMode(mode, options = {}) {
@@ -179,6 +499,7 @@ function setMode(mode, options = {}) {
     button.classList.toggle("active", active);
     button.setAttribute("aria-selected", String(active));
   });
+  elements.modeSelect.value = mode;
 
   elements.panels.forEach((panel) => {
     const active = panel.dataset.panel === mode;
@@ -191,7 +512,7 @@ function setMode(mode, options = {}) {
   }
 }
 
-async function updateQr(options = {}) {
+async function updateQr() {
   let encoded = "";
 
   try {
@@ -230,12 +551,10 @@ async function updateQr(options = {}) {
     showQrCanvas(canvas);
     setActionState(true);
     updateScanAction();
+    updateLinkInsight();
+    updateValidation();
     updateQuality();
     verifyScan(canvas);
-
-    if (!options.skipHistory) {
-      saveCurrentToHistory();
-    }
   } catch (error) {
     const message = error.message || "Impossible de generer ce QR code.";
     clearQrPreview(message);
@@ -248,6 +567,8 @@ function clearQrPreview(message = "Ajoutez un contenu pour afficher le QR code."
   elements.emptyState.textContent = message;
   elements.emptyState.hidden = false;
   elements.scanAction.hidden = true;
+  elements.linkInsight.hidden = true;
+  elements.validationPanel.hidden = true;
   elements.qualityPanel.hidden = true;
   elements.scanCheckPanel.hidden = true;
   setActionState(false);
@@ -353,6 +674,10 @@ function buildEncodedContent() {
     return buildAppStoreLink();
   }
 
+  if (state.mode === "media") {
+    return buildMediaLink();
+  }
+
   return elements.freeText.value.trim();
 }
 
@@ -409,6 +734,11 @@ function buildAppStoreLink() {
   }
 
   return `https://www.apple.com/search/${encodeURIComponent(appName)}?src=globalnav`;
+}
+
+function buildMediaLink() {
+  const url = elements.mediaUrl.value.trim();
+  return url ? normalizeUrl(url) : "";
 }
 
 function buildLocationLink() {
@@ -515,12 +845,20 @@ function normalizeUrl(value) {
 }
 
 function getCurrentSettings() {
+  const preset = getStylePreset(elements.qrStyle.value);
   return {
     outputSize: Number(elements.qrSize.value),
     margin: Number(elements.qrMargin.value),
     errorLevel: elements.qrErrorLevel.value,
     darkColor: elements.qrDarkColor.value,
     lightColor: elements.qrLightColor.value,
+    qrStyle: elements.qrStyle.value,
+    qrRoundness: Number(elements.qrRoundness.value) / 100,
+    qrShape: preset.shape,
+    qrGradient: preset.gradient,
+    qrBackground: preset.background,
+    qrTexture: preset.texture,
+    qrImageSource: state.styleImageSource,
     logoSizeRatio: Number(elements.logoSize.value) / 100,
     logoRadiusRatio: Number(elements.logoRadius.value) / 100,
     logoBackground: elements.logoBackground.checked,
@@ -550,13 +888,18 @@ async function renderQrCanvas(encoded, settings, logoSource, outputSize = settin
   canvas.height = outputSize;
 
   const context = canvas.getContext("2d");
-  context.fillStyle = settings.lightColor;
+  context.fillStyle = getQrBackground(settings);
   context.fillRect(0, 0, outputSize, outputSize);
 
+  let source = sourceCanvas;
+  if (!source && sourceImage) {
+    source = await imageToCanvas(sourceImage.src, qrSize, qrSize);
+  }
+
   if (sourceCanvas) {
-    context.drawImage(sourceCanvas, safeMargin, safeMargin, qrSize, qrSize);
+    await drawQrModules(context, sourceCanvas, safeMargin, safeMargin, qrSize, settings);
   } else if (sourceImage) {
-    await drawImageFromSource(context, sourceImage.src, safeMargin, safeMargin, qrSize, qrSize);
+    await drawQrModules(context, source, safeMargin, safeMargin, qrSize, settings);
   } else {
     scratch.remove();
     throw new Error("Rendu QR indisponible.");
@@ -607,9 +950,262 @@ function createQrCode(container, encoded, qrSize, settings) {
   throw new Error("Contenu trop long pour un QR code fiable. Raccourcissez le texte ou utilisez un lien court.");
 }
 
-async function drawImageFromSource(context, source, x, y, width, height) {
+async function imageToCanvas(source, width, height) {
   const image = await loadImage(source);
-  context.drawImage(image, x, y, width, height);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+  return canvas;
+}
+
+async function drawQrModules(context, sourceCanvas, x, y, size, settings) {
+  if (settings.qrStyle === "square") {
+    context.drawImage(sourceCanvas, x, y, size, size);
+    return;
+  }
+
+  const matrix = inferQrMatrix(sourceCanvas, settings.darkColor, settings.lightColor);
+  if (!matrix) {
+    context.drawImage(sourceCanvas, x, y, size, size);
+    return;
+  }
+
+  const moduleCount = matrix.length;
+  const cell = size / moduleCount;
+  const fill = await getQrModuleFill(context, x, y, size, settings);
+  context.fillStyle = fill;
+
+  matrix.forEach((row, rowIndex) => {
+    row.forEach((dark, colIndex) => {
+      if (!dark) {
+        return;
+      }
+
+      const px = x + colIndex * cell;
+      const py = y + rowIndex * cell;
+      const isFinder = isFinderModule(rowIndex, colIndex, moduleCount);
+      drawStyledModule(context, px, py, cell, settings, isFinder);
+    });
+  });
+}
+
+function inferQrMatrix(canvas, darkColor, lightColor) {
+  const context = canvas.getContext("2d");
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  const candidates = [];
+
+  for (let count = 21; count <= 177; count += 4) {
+    const cell = canvas.width / count;
+    if (cell < 2) {
+      break;
+    }
+
+    const matrix = [];
+    for (let row = 0; row < count; row += 1) {
+      const line = [];
+      for (let col = 0; col < count; col += 1) {
+        const sampleX = Math.min(canvas.width - 1, Math.floor((col + 0.5) * cell));
+        const sampleY = Math.min(canvas.height - 1, Math.floor((row + 0.5) * cell));
+        const offset = (sampleY * canvas.width + sampleX) * 4;
+        const pixel = [
+          imageData[offset],
+          imageData[offset + 1],
+          imageData[offset + 2],
+        ];
+        line.push(isDarkPixel(pixel, darkColor, lightColor));
+      }
+      matrix.push(line);
+    }
+
+    candidates.push({ matrix, score: scoreFinderPatterns(matrix) });
+  }
+
+  const best = candidates.sort((a, b) => b.score - a.score)[0];
+  return best?.score >= 120 ? best.matrix : null;
+}
+
+function isDarkPixel(pixel, darkColor, lightColor) {
+  const dark = hexToRgb(darkColor);
+  const light = hexToRgb(lightColor);
+  const darkDistance = colorDistance(pixel, dark);
+  const lightDistance = colorDistance(pixel, light);
+  return darkDistance <= lightDistance;
+}
+
+function scoreFinderPatterns(matrix) {
+  const count = matrix.length;
+  return scoreFinder(matrix, 0, 0)
+    + scoreFinder(matrix, 0, count - 7)
+    + scoreFinder(matrix, count - 7, 0);
+}
+
+function scoreFinder(matrix, startRow, startCol) {
+  let score = 0;
+  for (let row = 0; row < 7; row += 1) {
+    for (let col = 0; col < 7; col += 1) {
+      const border = row === 0 || row === 6 || col === 0 || col === 6;
+      const center = row >= 2 && row <= 4 && col >= 2 && col <= 4;
+      const expected = border || center;
+      score += matrix[startRow + row]?.[startCol + col] === expected ? 4 : -3;
+    }
+  }
+  return score;
+}
+
+function drawStyledModule(context, x, y, size, settings, isFinder) {
+  const shape = settings.qrShape || getStylePreset(settings.qrStyle).shape;
+  const gap = shape === "dots" && !isFinder ? size * 0.18 : size * 0.08;
+  const moduleX = x + gap / 2;
+  const moduleY = y + gap / 2;
+  const moduleSize = Math.max(1, size - gap);
+
+  if (shape === "dots" && !isFinder) {
+    context.beginPath();
+    context.arc(x + size / 2, y + size / 2, moduleSize * 0.46, 0, Math.PI * 2);
+    context.fill();
+    return;
+  }
+
+  const roundness = isFinder ? 0.12 : settings.qrRoundness;
+  context.beginPath();
+  roundedPath(context, moduleX, moduleY, moduleSize, moduleSize, moduleSize * roundness);
+  context.fill();
+}
+
+function isFinderModule(row, col, count) {
+  return (row < 7 && col < 7)
+    || (row < 7 && col >= count - 7)
+    || (row >= count - 7 && col < 7);
+}
+
+function getQrBackground(settings) {
+  return settings.qrBackground || getStylePreset(settings.qrStyle).background || settings.lightColor;
+}
+
+async function getQrModuleFill(context, x, y, size, settings) {
+  if (settings.qrImageSource) {
+    try {
+      const image = await loadImage(settings.qrImageSource, settings.qrImageSource.startsWith("data:") ? undefined : "anonymous");
+      return createImageFillPattern(context, image, size);
+    } catch (error) {
+      return settings.darkColor;
+    }
+  }
+
+  if (settings.qrTexture) {
+    return context.createPattern(createTextureCanvas(settings.qrTexture), "repeat") || settings.darkColor;
+  }
+
+  const gradientColors = settings.qrGradient || getStylePreset(settings.qrStyle).gradient;
+  if (!gradientColors) {
+    return settings.darkColor;
+  }
+
+  const gradient = context.createLinearGradient(x, y, x + size, y + size);
+  gradientColors.forEach((color, index) => {
+    gradient.addColorStop(index / Math.max(1, gradientColors.length - 1), color);
+  });
+  return gradient;
+}
+
+function createImageFillPattern(context, image, size) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 140;
+  canvas.height = 140;
+  const texture = canvas.getContext("2d");
+  texture.drawImage(image, 0, 0, canvas.width, canvas.height);
+  texture.globalCompositeOperation = "multiply";
+  texture.fillStyle = "rgba(0, 0, 0, 0.18)";
+  texture.fillRect(0, 0, canvas.width, canvas.height);
+  return context.createPattern(canvas, "repeat") || "#111827";
+}
+
+function createTextureCanvas(textureName) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 96;
+  canvas.height = 96;
+  const context = canvas.getContext("2d");
+
+  const textureMap = {
+    waves: () => {
+      const gradient = context.createLinearGradient(0, 0, 96, 96);
+      gradient.addColorStop(0, "#075985");
+      gradient.addColorStop(0.55, "#0891b2");
+      gradient.addColorStop(1, "#22d3ee");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 96, 96);
+      context.strokeStyle = "rgba(255,255,255,0.35)";
+      context.lineWidth = 5;
+      for (let y = 12; y < 110; y += 22) {
+        context.beginPath();
+        for (let x = -10; x <= 110; x += 8) {
+          const waveY = y + Math.sin(x / 9) * 6;
+          x === -10 ? context.moveTo(x, waveY) : context.lineTo(x, waveY);
+        }
+        context.stroke();
+      }
+    },
+    marble: () => {
+      context.fillStyle = "#f8fafc";
+      context.fillRect(0, 0, 96, 96);
+      for (let i = 0; i < 9; i += 1) {
+        context.strokeStyle = i % 2 ? "rgba(51,65,85,0.42)" : "rgba(23,105,224,0.22)";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(-10, i * 13);
+        context.bezierCurveTo(20, i * 9 + 18, 54, i * 17 - 20, 106, i * 12 + 8);
+        context.stroke();
+      }
+    },
+    paper: () => {
+      context.fillStyle = "#fffbea";
+      context.fillRect(0, 0, 96, 96);
+      for (let i = 0; i < 180; i += 1) {
+        context.fillStyle = i % 2 ? "rgba(113,63,18,0.22)" : "rgba(217,119,6,0.2)";
+        context.fillRect((i * 37) % 96, (i * 19) % 96, 1.4, 1.4);
+      }
+    },
+    mosaic: () => {
+      const colors = ["#4c1d95", "#7c3aed", "#be185d", "#1769e0"];
+      for (let y = 0; y < 96; y += 16) {
+        for (let x = 0; x < 96; x += 16) {
+          context.fillStyle = colors[((x + y) / 16) % colors.length];
+          context.fillRect(x, y, 15, 15);
+        }
+      }
+    },
+    aurora: () => {
+      const gradient = context.createLinearGradient(0, 96, 96, 0);
+      gradient.addColorStop(0, "#064e3b");
+      gradient.addColorStop(0.45, "#22a06b");
+      gradient.addColorStop(1, "#67e8f9");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 96, 96);
+      context.fillStyle = "rgba(255,255,255,0.22)";
+      for (let x = -20; x < 100; x += 18) {
+        context.beginPath();
+        context.ellipse(x, 40 + Math.sin(x) * 12, 10, 44, 0.4, 0, Math.PI * 2);
+        context.fill();
+      }
+    },
+  };
+
+  (textureMap[textureName] || textureMap.waves)();
+  return canvas;
+}
+
+function getStylePreset(style) {
+  return STYLE_PRESETS[style] || STYLE_PRESETS.rounded;
+}
+
+function hexToRgb(hex) {
+  const normalized = hex.replace("#", "");
+  return normalized.match(/.{2}/g).map((part) => parseInt(part, 16));
+}
+
+function colorDistance(pixel, rgb) {
+  return Math.abs(pixel[0] - rgb[0]) + Math.abs(pixel[1] - rgb[1]) + Math.abs(pixel[2] - rgb[2]);
 }
 
 async function drawLogo(context, canvas, settings, logoSource) {
@@ -636,7 +1232,7 @@ function updateQuality() {
   }
 
   const settings = getCurrentSettings();
-  const contrast = getContrastRatio(settings.darkColor, settings.lightColor);
+  const contrast = getContrastRatio(settings.darkColor, getQrBackground(settings));
   const warnings = [];
 
   if (contrast < 4.5) {
@@ -672,10 +1268,175 @@ function updateScanAction() {
     event: "Proposera d'ajouter cet evenement au calendrier.",
     social: "Ouvrira le profil ou la page du reseau social choisi.",
     appstore: "Ouvrira la fiche de l'application dans la boutique ou le lien fourni.",
+    media: "Ouvrira le lien public vers l'image, la video, le PDF ou le fichier.",
   };
 
   elements.scanAction.hidden = !state.encoded;
   elements.scanActionText.textContent = messages[state.mode] || messages.text;
+}
+
+function updateLinkInsight() {
+  const info = getLinkInfo(state.encoded);
+  elements.linkInsight.hidden = !info;
+
+  if (!info) {
+    return;
+  }
+
+  elements.linkKind.textContent = info.kind;
+  elements.linkInsightText.textContent = info.message;
+}
+
+function getLinkInfo(value) {
+  if (!value) {
+    return null;
+  }
+
+  if (/^mailto:/i.test(value)) {
+    return { kind: "Email", message: "Ouvre l'application email avec les champs prepares." };
+  }
+
+  if (/^tel:/i.test(value)) {
+    return { kind: "Telephone", message: "Ouvre l'ecran d'appel, puis le telephone demande confirmation." };
+  }
+
+  if (/^sms:/i.test(value)) {
+    return { kind: "SMS", message: "Ouvre l'application SMS avec le message prepare." };
+  }
+
+  if (!/^https?:\/\//i.test(value)) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+    const host = url.hostname.replace(/^www\./, "");
+    const path = url.pathname.toLowerCase();
+    if (state.mode === "media") {
+      const mediaType = elements.mediaType.options[elements.mediaType.selectedIndex]?.textContent || "Media";
+      return {
+        kind: mediaType,
+        message: `${mediaType} heberge sur ${host}. Le lien doit etre public pour fonctionner sur un autre telephone.`,
+      };
+    }
+
+    const directTypes = [
+      { test: /\.(png|jpe?g|gif|webp|avif|svg)$/i, kind: "Image" },
+      { test: /\.(mp4|mov|webm|m4v)$/i, kind: "Video" },
+      { test: /\.pdf$/i, kind: "PDF" },
+    ];
+    const directType = directTypes.find((type) => type.test.test(path));
+
+    if (directType) {
+      return { kind: directType.kind, message: `Lien direct detecte sur ${host}.` };
+    }
+
+    if (/youtube\.com|youtu\.be/.test(host)) {
+      return { kind: "Video", message: "Ouvre YouTube vers cette video ou cette chaine." };
+    }
+
+    if (/drive\.google\.com|docs\.google\.com/.test(host)) {
+      return { kind: "Google", message: "Ouvre Google Drive/Docs. Verifiez que le partage est public." };
+    }
+
+    if (/dropbox\.com|onedrive\.live\.com|1drv\.ms/.test(host)) {
+      return { kind: "Fichier", message: "Ouvre un fichier en ligne. Verifiez les droits de partage." };
+    }
+
+    if (/apps\.apple\.com|play\.google\.com/.test(host)) {
+      return { kind: "App", message: "Ouvre la page de l'application dans la boutique." };
+    }
+
+    if (/wa\.me/.test(host)) {
+      return { kind: "WhatsApp", message: "Ouvre WhatsApp avec le message prepare." };
+    }
+
+    return { kind: "Lien", message: `Ouvre ${host} dans le navigateur.` };
+  } catch (error) {
+    return null;
+  }
+}
+
+function updateValidation() {
+  const warnings = getValidationWarnings();
+  elements.validationPanel.hidden = warnings.length === 0;
+  elements.validationMessage.textContent = warnings.join(" ");
+}
+
+function getValidationWarnings() {
+  const warnings = [];
+
+  if (state.mode === "wifi" && state.encoded && elements.wifiSecurity.value !== "nopass" && !elements.wifiPassword.value) {
+    warnings.push("Le mot de passe Wi-Fi est vide alors qu'une securite est choisie.");
+  }
+
+  if (state.mode === "email" && elements.emailTo.value.trim() && !isValidEmail(elements.emailTo.value.trim())) {
+    warnings.push("L'adresse email semble incomplete.");
+  }
+
+  if (state.mode === "phone" && elements.phoneNumber.value.trim() && digitsOnly(elements.phoneNumber.value).length < 8) {
+    warnings.push("Le numero de telephone semble trop court.");
+  }
+
+  if (state.mode === "sms" && elements.smsNumber.value.trim() && digitsOnly(elements.smsNumber.value).length < 8) {
+    warnings.push("Le numero SMS semble trop court.");
+  }
+
+  if (state.mode === "whatsapp" && elements.whatsappNumber.value.trim()) {
+    const digits = digitsOnly(elements.whatsappNumber.value);
+    if (digits.length < 8 || /^0/.test(elements.whatsappNumber.value.trim())) {
+      warnings.push("Pour WhatsApp, ajoutez l'indicatif pays, par exemple +262.");
+    }
+  }
+
+  if (state.mode === "event" && elements.eventStart.value && elements.eventEnd.value) {
+    const start = new Date(elements.eventStart.value);
+    const end = new Date(elements.eventEnd.value);
+    if (end <= start) {
+      warnings.push("La fin de l'evenement doit etre apres le debut.");
+    }
+  }
+
+  if (state.mode === "appstore" && elements.appstoreUrl.value.trim()) {
+    const url = elements.appstoreUrl.value.trim();
+    if (elements.appstoreTarget.value === "ios" && !/apps\.apple\.com/i.test(url)) {
+      warnings.push("Ce lien ne ressemble pas a une page App Store.");
+    }
+    if (elements.appstoreTarget.value === "android" && !/play\.google\.com/i.test(url)) {
+      warnings.push("Ce lien ne ressemble pas a une page Play Store.");
+    }
+  }
+
+  if (state.mode === "media" && elements.mediaUrl.value.trim()) {
+    if (!isHttpUrl(normalizeUrl(elements.mediaUrl.value.trim()))) {
+      warnings.push("Le lien media doit etre une URL web.");
+    } else {
+      warnings.push("Le fichier doit etre partage publiquement pour fonctionner sur un autre telephone.");
+    }
+  }
+
+  if (state.encoded.length > 700) {
+    warnings.push("Le contenu est long : le QR sera plus dense et peut etre moins confortable a scanner.");
+  }
+
+  return warnings;
+}
+
+function digitsOnly(value) {
+  return value.replace(/[^\d]/g, "");
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (error) {
+    return false;
+  }
 }
 
 function verifyScan(canvas) {
@@ -824,36 +1585,6 @@ function canvasToBlob(canvas) {
   });
 }
 
-function saveCurrentToHistory() {
-  if (!state.encoded) {
-    return;
-  }
-
-  const existingIndex = state.history.findIndex((item) => item.content === state.encoded);
-  const existingItem = existingIndex >= 0 ? state.history[existingIndex] : null;
-  const item = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    mode: state.mode,
-    name: getHistoryName(),
-    content: state.encoded,
-    fields: collectModeFields(),
-    settings: getCurrentSettings(),
-    logoSource: state.logoSource,
-    logoType: state.logoType,
-    favorite: Boolean(existingItem?.favorite),
-    createdAt: new Date().toISOString(),
-  };
-
-  if (existingIndex >= 0) {
-    state.history.splice(existingIndex, 1);
-  }
-
-  state.history.unshift(item);
-  state.history = state.history.slice(0, MAX_HISTORY_ITEMS);
-  writeHistory();
-  renderHistory();
-}
-
 function showFavoriteForm() {
   if (!state.encoded) {
     return;
@@ -861,7 +1592,7 @@ function showFavoriteForm() {
 
   elements.favoriteForm.hidden = !elements.favoriteForm.hidden;
   if (!elements.favoriteForm.hidden) {
-    elements.historyName.focus();
+    elements.favoriteName.focus();
   }
 }
 
@@ -870,23 +1601,23 @@ function favoriteCurrentQr() {
     return;
   }
 
-  const existingIndex = state.history.findIndex((item) => item.content === state.encoded);
+  const existingIndex = state.favorites.findIndex((item) => item.content === state.encoded);
 
   if (existingIndex >= 0) {
-    state.history[existingIndex] = {
-      ...state.history[existingIndex],
+    state.favorites[existingIndex] = {
+      ...state.favorites[existingIndex],
       favorite: true,
-      name: getHistoryName(),
+      name: getFavoriteName(),
       fields: collectModeFields(),
       settings: getCurrentSettings(),
       logoSource: state.logoSource,
       logoType: state.logoType,
     };
   } else {
-    state.history.unshift({
+    state.favorites.unshift({
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       mode: state.mode,
-      name: getHistoryName(),
+      name: getFavoriteName(),
       content: state.encoded,
       fields: collectModeFields(),
       settings: getCurrentSettings(),
@@ -897,15 +1628,15 @@ function favoriteCurrentQr() {
     });
   }
 
-  state.history = state.history.slice(0, MAX_HISTORY_ITEMS);
-  writeHistory();
-  renderHistory();
+  state.favorites = state.favorites.slice(0, MAX_FAVORITES);
+  writeFavorites();
+  renderFavorites();
   elements.favoriteForm.hidden = true;
   setFeedback("QR ajoute aux favoris.");
 }
 
-function getHistoryName() {
-  const customName = elements.historyName.value.trim();
+function getFavoriteName() {
+  const customName = elements.favoriteName.value.trim();
   if (customName) {
     return customName;
   }
@@ -950,6 +1681,11 @@ function getHistoryName() {
     return elements.appstoreName.value.trim() || "App mobile";
   }
 
+  if (state.mode === "media") {
+    const selected = elements.mediaType.options[elements.mediaType.selectedIndex]?.textContent || "Media";
+    return elements.mediaUrl.value.trim() ? `${selected} en ligne` : "Media";
+  }
+
   return state.encoded.slice(0, 42) || "QR code";
 }
 
@@ -988,34 +1724,44 @@ function collectModeFields() {
     appstoreTarget: elements.appstoreTarget.value,
     appstoreName: elements.appstoreName.value,
     appstoreUrl: elements.appstoreUrl.value,
-    historyName: elements.historyName.value,
+    mediaType: elements.mediaType.value,
+    mediaUrl: elements.mediaUrl.value,
+    favoriteName: elements.favoriteName.value,
   };
 }
 
-function readHistory() {
+function readFavorites() {
   try {
     const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    return Array.isArray(stored) ? stored.filter((item) => item.mode !== "note") : [];
+    return Array.isArray(stored) ? stored.filter((item) => item.favorite && item.mode !== "note") : [];
   } catch (error) {
     return [];
   }
 }
 
-function writeHistory() {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history));
+function writeFavorites() {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(state.favorites));
 }
 
-function renderHistory() {
+function renderFavorites() {
   elements.favoritesList.innerHTML = "";
 
-  const favorites = state.history.filter((item) => item.favorite);
-  renderHistoryCollection(elements.favoritesList, favorites, "Aucun favori pour le moment.", true);
+  const query = normalizeSearch(elements.favoritesSearch.value);
+  const items = query
+    ? state.favorites.filter((item) => normalizeSearch(`${item.name} ${MODE_LABELS[item.mode] || ""} ${item.content}`).includes(query))
+    : state.favorites;
+
+  renderFavoriteCollection(
+    elements.favoritesList,
+    items,
+    query ? "Aucun favori ne correspond a cette recherche." : "Aucun favori pour le moment.",
+  );
 }
 
-function renderHistoryCollection(container, items, emptyMessage, compact) {
+function renderFavoriteCollection(container, items, emptyMessage) {
   if (items.length === 0) {
     const empty = document.createElement("p");
-    empty.className = "history-empty";
+    empty.className = "favorite-empty";
     empty.textContent = emptyMessage;
     container.appendChild(empty);
     return;
@@ -1023,9 +1769,9 @@ function renderHistoryCollection(container, items, emptyMessage, compact) {
 
   const fragment = document.createDocumentFragment();
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const article = document.createElement("article");
-    article.className = compact ? "history-item favorite-item" : "history-item compact-history-item";
+    article.className = "favorite-item";
 
     const preview = document.createElement("div");
     preview.className = "favorite-preview";
@@ -1034,50 +1780,57 @@ function renderHistoryCollection(container, items, emptyMessage, compact) {
 
     const details = document.createElement("div");
     const meta = document.createElement("div");
-    meta.className = "history-meta";
+    meta.className = "favorite-meta";
 
     const badge = document.createElement("span");
-    badge.className = "history-badge";
+    badge.className = "favorite-badge";
     badge.textContent = MODE_LABELS[item.mode] || "QR";
 
     const time = document.createElement("span");
-    time.className = "history-time";
+    time.className = "favorite-time";
     time.textContent = formatDate(item.createdAt);
 
     const title = document.createElement("h3");
-    title.className = "history-title";
+    title.className = "favorite-title";
     title.textContent = item.name || MODE_LABELS[item.mode] || "QR code";
 
     const content = document.createElement("p");
-    content.className = "history-content";
+    content.className = "favorite-content";
     content.textContent = item.content;
 
     meta.append(badge, time);
-    details.append(meta, title);
-    if (compact) {
-      details.append(content);
-    }
+    details.append(meta, title, content);
 
     const actions = document.createElement("div");
-    actions.className = "history-actions";
+    actions.className = "favorite-actions";
 
-    const moveUpButton = createHistoryButton("↑", () => moveFavorite(item.id, -1), "icon-action");
+    const moveUpButton = createFavoriteButton("\u2191", () => moveFavorite(item.id, -1), "icon-action");
     moveUpButton.title = "Monter";
     moveUpButton.setAttribute("aria-label", "Monter ce favori");
-    const moveDownButton = createHistoryButton("↓", () => moveFavorite(item.id, 1), "icon-action");
+    moveUpButton.disabled = index === 0;
+    const moveDownButton = createFavoriteButton("\u2193", () => moveFavorite(item.id, 1), "icon-action");
     moveDownButton.title = "Descendre";
     moveDownButton.setAttribute("aria-label", "Descendre ce favori");
-    const reuseButton = createHistoryButton("Reprendre", () => reuseHistoryItem(item));
-    const favoriteButton = createHistoryButton(item.favorite ? "Retirer des favoris" : "Mettre en favoris", () => toggleFavorite(item.id));
-    const copyQrButton = createHistoryButton("Copier QR", () => copyHistoryQr(item));
-    const deleteButton = createHistoryButton("Supprimer", () => deleteHistoryItem(item.id), "danger-action");
+    moveDownButton.disabled = index === items.length - 1;
+    const reuseButton = createFavoriteButton("Reprendre", () => reuseFavorite(item));
+    const copyQrButton = createFavoriteButton("Copier QR", () => copyFavoriteQr(item));
+    const copyContentButton = createFavoriteButton("Copier contenu", () => copyFavoriteContent(item));
+    const deleteButton = createFavoriteButton("Supprimer", () => deleteFavorite(item.id), "danger-action");
 
-    actions.append(moveUpButton, moveDownButton, reuseButton, favoriteButton, copyQrButton, deleteButton);
+    actions.append(moveUpButton, moveDownButton, reuseButton, copyQrButton, copyContentButton, deleteButton);
     article.append(preview, details, actions);
     fragment.appendChild(article);
   });
 
   container.appendChild(fragment);
+}
+
+function normalizeSearch(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
 
 async function renderFavoritePreview(container, item) {
@@ -1091,31 +1844,20 @@ async function renderFavoritePreview(container, item) {
 }
 
 function moveFavorite(id, direction) {
-  const favorites = state.history.filter((item) => item.favorite);
-  const others = state.history.filter((item) => !item.favorite);
-  const index = favorites.findIndex((item) => item.id === id);
+  const index = state.favorites.findIndex((item) => item.id === id);
   const nextIndex = index + direction;
 
-  if (index < 0 || nextIndex < 0 || nextIndex >= favorites.length) {
+  if (index < 0 || nextIndex < 0 || nextIndex >= state.favorites.length) {
     return;
   }
 
-  const [item] = favorites.splice(index, 1);
-  favorites.splice(nextIndex, 0, item);
-  state.history = [...favorites, ...others];
-  writeHistory();
-  renderHistory();
+  const [item] = state.favorites.splice(index, 1);
+  state.favorites.splice(nextIndex, 0, item);
+  writeFavorites();
+  renderFavorites();
 }
 
-function toggleFavorite(id) {
-  state.history = state.history.map((item) => (
-    item.id === id ? { ...item, favorite: !item.favorite } : item
-  ));
-  writeHistory();
-  renderHistory();
-}
-
-function createHistoryButton(label, onClick, extraClass = "") {
+function createFavoriteButton(label, onClick, extraClass = "") {
   const button = document.createElement("button");
   button.className = `small-action ${extraClass}`.trim();
   button.type = "button";
@@ -1124,14 +1866,14 @@ function createHistoryButton(label, onClick, extraClass = "") {
   return button;
 }
 
-function reuseHistoryItem(item) {
+function reuseFavorite(item) {
   setMode(item.mode || "text");
   applyModeFields(item.fields, item.content);
   applySettings(item.settings);
   state.logoSource = item.logoSource || "";
   state.logoType = normalizeLogoType(item.logoType, state.logoSource);
   updateLogoPresetButtons(state.logoType);
-  updateQr({ skipHistory: true });
+  updateQr();
   setFeedback("Favori charge.");
 }
 
@@ -1169,7 +1911,9 @@ function applyModeFields(fields = {}, content = "") {
   elements.appstoreTarget.value = fields.appstoreTarget || "ios";
   elements.appstoreName.value = fields.appstoreName || "";
   elements.appstoreUrl.value = fields.appstoreUrl || "";
-  elements.historyName.value = fields.historyName || "";
+  elements.mediaType.value = fields.mediaType || "image";
+  elements.mediaUrl.value = fields.mediaUrl || "";
+  elements.favoriteName.value = fields.favoriteName || fields.historyName || "";
 }
 
 function applySettings(settings = {}) {
@@ -1177,14 +1921,18 @@ function applySettings(settings = {}) {
   elements.qrErrorLevel.value = settings.errorLevel || "H";
   elements.qrDarkColor.value = settings.darkColor || "#111827";
   elements.qrLightColor.value = settings.lightColor || "#ffffff";
+  elements.qrStyle.value = settings.qrStyle || "rounded";
+  state.styleImageSource = settings.qrImageSource || "";
+  elements.qrRoundness.value = String(Math.round((settings.qrRoundness ?? 0.32) * 100));
   elements.qrMargin.value = String(settings.margin || 32);
   elements.logoSize.value = String(Math.round((settings.logoSizeRatio || 0.22) * 100));
   elements.logoRadius.value = String(Math.round((settings.logoRadiusRatio || 0.2) * 100));
   elements.logoBackground.checked = settings.logoBackground !== false;
   syncRangeOutputs();
+  syncStyleCards();
 }
 
-async function copyHistoryQr(item) {
+async function copyFavoriteQr(item) {
   if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
     setFeedback("La copie d'image n'est pas prise en charge par ce navigateur.");
     return;
@@ -1200,32 +1948,40 @@ async function copyHistoryQr(item) {
   }
 }
 
-async function copyHistoryContent(item) {
+async function copyFavoriteContent(item) {
   try {
     await navigator.clipboard.writeText(item.content);
     setFeedback("Contenu du favori copie.");
   } catch (error) {
-    setFeedback("Copie impossible depuis ce favori.");
+    setFeedback("Copie du contenu impossible.");
   }
 }
 
 function normalizeSettings(settings = {}) {
+  const preset = getStylePreset(settings.qrStyle || "rounded");
   return {
     outputSize: settings.outputSize || 768,
     margin: settings.margin ?? 32,
     errorLevel: settings.errorLevel || "H",
     darkColor: settings.darkColor || "#111827",
     lightColor: settings.lightColor || "#ffffff",
+    qrStyle: settings.qrStyle || "rounded",
+    qrRoundness: settings.qrRoundness ?? 0.32,
+    qrShape: settings.qrShape || preset.shape,
+    qrGradient: settings.qrGradient || preset.gradient,
+    qrBackground: settings.qrBackground || preset.background,
+    qrTexture: settings.qrTexture || preset.texture,
+    qrImageSource: settings.qrImageSource || "",
     logoSizeRatio: settings.logoSizeRatio || 0.22,
     logoRadiusRatio: settings.logoRadiusRatio ?? 0.2,
     logoBackground: settings.logoBackground !== false,
   };
 }
 
-function deleteHistoryItem(id) {
-  state.history = state.history.filter((item) => item.id !== id);
-  writeHistory();
-  renderHistory();
+function deleteFavorite(id) {
+  state.favorites = state.favorites.filter((item) => item.id !== id);
+  writeFavorites();
+  renderFavorites();
 }
 
 function resetForm() {
@@ -1234,12 +1990,14 @@ function resetForm() {
   state.encoded = "";
   state.logoSource = "";
   state.logoType = "none";
-  elements.templateSelect.value = "";
-  elements.designPreset.value = "blue";
+  state.styleImageSource = "";
   setMode("text", { skipUpdate: true });
+  elements.qrStyle.value = "rounded";
+  applyStyleDefaults("rounded");
   updateLogoPresetButtons("none");
   syncRangeOutputs();
-  updateQr({ skipHistory: true });
+  syncStyleCards();
+  updateQr();
   setFeedback("Formulaire reinitialise.");
 }
 
@@ -1320,122 +2078,6 @@ function normalizeLogoType(type, source) {
   }
 
   return type || (source ? "custom" : "none");
-}
-
-function applyTemplate() {
-  const template = elements.templateSelect.value;
-  if (!template) {
-    return;
-  }
-
-  const now = new Date();
-  const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
-  nextHour.setMinutes(0, 0, 0);
-  const endHour = new Date(nextHour.getTime() + 60 * 60 * 1000);
-
-  const templates = {
-    "wifi-home": () => {
-      setMode("wifi", { skipUpdate: true });
-      elements.historyName.value = "Wi-Fi maison";
-      elements.wifiSsid.value = "Maison";
-      elements.wifiPassword.value = "";
-      elements.wifiSecurity.value = "WPA";
-      elements.wifiHidden.checked = false;
-    },
-    "business-card": () => {
-      setMode("vcard", { skipUpdate: true });
-      elements.historyName.value = "Carte pro";
-      elements.vcardFirstname.value = "Marie";
-      elements.vcardLastname.value = "Dupont";
-      elements.vcardPhone.value = "+262 692 00 00 00";
-      elements.vcardEmail.value = "contact@example.com";
-      elements.vcardOrg.value = "Entreprise";
-      elements.vcardUrl.value = "https://exemple.com";
-    },
-    instagram: () => {
-      setMode("social", { skipUpdate: true });
-      elements.historyName.value = "Lien Instagram";
-      elements.socialNetwork.value = "instagram";
-      elements.socialValue.value = "votre_compte";
-    },
-    "restaurant-menu": () => {
-      setMode("text", { skipUpdate: true });
-      elements.historyName.value = "Menu restaurant";
-      elements.freeText.value = "https://exemple.com/menu";
-    },
-    support: () => {
-      setMode("email", { skipUpdate: true });
-      elements.historyName.value = "Support client";
-      elements.emailTo.value = "support@example.com";
-      elements.emailSubject.value = "Demande de support";
-      elements.emailBody.value = "Bonjour, j'ai besoin d'aide concernant...";
-    },
-    whatsapp: () => {
-      setMode("whatsapp", { skipUpdate: true });
-      elements.historyName.value = "WhatsApp";
-      elements.whatsappNumber.value = "+262 692 00 00 00";
-      elements.whatsappMessage.value = "Bonjour,";
-    },
-    event: () => {
-      setMode("event", { skipUpdate: true });
-      elements.historyName.value = "Evenement";
-      elements.eventTitle.value = "Evenement";
-      elements.eventStart.value = toLocalDateTimeValue(nextHour);
-      elements.eventEnd.value = toLocalDateTimeValue(endHour);
-      elements.eventLocation.value = "Lieu a completer";
-    },
-    location: () => {
-      setMode("location", { skipUpdate: true });
-      elements.historyName.value = "Localisation";
-      elements.locationQuery.value = "Saint-Denis, Reunion";
-    },
-    social: () => {
-      setMode("social", { skipUpdate: true });
-      elements.historyName.value = "Reseau social";
-      elements.socialNetwork.value = "instagram";
-      elements.socialValue.value = "votre_compte";
-    },
-    appstore: () => {
-      setMode("appstore", { skipUpdate: true });
-      elements.historyName.value = "App mobile";
-      elements.appstoreTarget.value = "ios";
-      elements.appstoreName.value = "Mon app";
-      elements.appstoreUrl.value = "https://apps.apple.com/";
-    },
-  };
-
-  templates[template]?.();
-  elements.templateSelect.value = "";
-  updateQr();
-}
-
-function applyDesignPreset() {
-  const presets = {
-    blue: { dark: "#1769e0", light: "#ffffff", margin: 32, error: "H", label: "Bleu" },
-    classic: { dark: "#000000", light: "#ffffff", margin: 32, error: "H", label: "Classique" },
-    premium: { dark: "#050816", light: "#f7f8fb", margin: 40, error: "H", label: "Noir premium" },
-    pastel: { dark: "#5b8def", light: "#fff7fb", margin: 36, error: "H", label: "Pastel" },
-    print: { dark: "#000000", light: "#ffffff", margin: 56, error: "H", label: "Impression" },
-  };
-
-  const preset = presets[elements.designPreset.value];
-  if (!preset) {
-    return;
-  }
-
-  elements.qrDarkColor.value = preset.dark;
-  elements.qrLightColor.value = preset.light;
-  elements.qrMargin.value = String(preset.margin);
-  elements.qrErrorLevel.value = preset.error;
-  syncRangeOutputs();
-  updateQr();
-  setFeedback(`Style ${preset.label} applique.`);
-}
-
-function toLocalDateTimeValue(date) {
-  const offset = date.getTimezoneOffset();
-  const local = new Date(date.getTime() - offset * 60 * 1000);
-  return local.toISOString().slice(0, 16);
 }
 
 function loadLogoImage(source) {
