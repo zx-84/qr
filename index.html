@@ -379,10 +379,13 @@
                     <span>Choisissez deux couleurs pour remplir les points du QR.</span>
                   </div>
                   <div class="field-grid">
+                    <label class="toggle-field full-field gradient-toggle">
+                      <input id="qr-gradient-enabled" type="checkbox" checked>
+                      <span>Degrade active</span>
+                    </label>
                     <label class="field">
                       <span>Type</span>
                       <select id="qr-gradient-mode">
-                        <option value="none">Aucun degrade</option>
                         <option value="linear" selected>Lineaire</option>
                         <option value="diagonal">Diagonal</option>
                         <option value="radial">Radial</option>
@@ -490,12 +493,23 @@
               <button class="secondary-action" id="copy-button" type="button" disabled>Copier le contenu</button>
               <button class="secondary-action" id="test-link-button" type="button" disabled>Tester le lien</button>
               <button class="secondary-action" id="favorite-current-button" type="button" disabled>Mettre en favoris</button>
+              <button class="secondary-action" id="reset-design-button" type="button">Reinitialiser design</button>
               <button class="ghost-action" id="reset-button" type="button">Reinitialiser</button>
             </div>
             <div class="favorite-form" id="favorite-form" hidden>
               <label class="field">
                 <span>Nom du favori</span>
               <input id="favorite-name" type="text" placeholder="Ex : Wi-Fi maison, carte pro, menu restaurant">
+              </label>
+              <label class="field">
+                <span>Categorie</span>
+                <select id="favorite-tag">
+                  <option value="Perso">Perso</option>
+                  <option value="Pro">Pro</option>
+                  <option value="Resto">Resto</option>
+                  <option value="Wi-Fi">Wi-Fi</option>
+                  <option value="Client">Client</option>
+                </select>
               </label>
               <button class="primary-action" id="confirm-favorite-button" type="button">Ajouter aux favoris</button>
             </div>

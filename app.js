@@ -1,4 +1,5 @@
 const HISTORY_KEY = "qr-maker-history";
+const DRAFT_KEY = "QR-maker-draft";
 const MAX_FAVORITES = 24;
 const PREVIEW_SIZE = 768;
 const DISPLAY_SIZE = 320;
@@ -64,6 +65,7 @@ const elements = {
   favoriteForm: document.querySelector("#favorite-form"),
   confirmFavoriteButton: document.querySelector("#confirm-favorite-button"),
   resetButton: document.querySelector("#reset-button"),
+  resetDesignButton: document.querySelector("#reset-design-button"),
   favoritesList: document.querySelector("#favorites-list"),
   favoritesSearch: document.querySelector("#favorites-search"),
   logoPresets: document.querySelectorAll(".logo-preset"),
@@ -75,6 +77,7 @@ const elements = {
   formInputs: document.querySelectorAll("input, select, textarea"),
   freeText: document.querySelector("#free-text"),
   favoriteName: document.querySelector("#favorite-name"),
+  favoriteTag: document.querySelector("#favorite-tag"),
   wifiSsid: document.querySelector("#wifi-ssid"),
   wifiPassword: document.querySelector("#wifi-password"),
   wifiSecurity: document.querySelector("#wifi-security"),
@@ -113,6 +116,7 @@ const elements = {
   qrErrorLevel: document.querySelector("#qr-error-level"),
   qrDarkColor: document.querySelector("#qr-dark-color"),
   qrLightColor: document.querySelector("#qr-light-color"),
+  qrGradientEnabled: document.querySelector("#qr-gradient-enabled"),
   qrGradientMode: document.querySelector("#qr-gradient-mode"),
   qrGradientStart: document.querySelector("#qr-gradient-start"),
   qrGradientEnd: document.querySelector("#qr-gradient-end"),
@@ -127,7 +131,9 @@ const elements = {
 
 window.addEventListener("load", () => {
   bindEvents();
+  restoreDraft();
   syncRangeOutputs();
+  syncGradientControls();
   writeFavorites();
   renderFavorites();
   updateQr();
@@ -169,11 +175,13 @@ function bindEvents() {
   elements.testLinkButton.addEventListener("click", testEncodedLink);
   elements.favoriteCurrentButton.addEventListener("click", showFavoriteForm);
   elements.confirmFavoriteButton.addEventListener("click", favoriteCurrentQr);
+  elements.resetDesignButton.addEventListener("click", resetDesign);
   elements.resetButton.addEventListener("click", resetForm);
 }
 
 function handleFormInput() {
   syncRangeOutputs();
+  syncGradientControls();
   updateQr();
 }
 
@@ -181,6 +189,13 @@ function syncRangeOutputs() {
   elements.qrMarginOutput.textContent = `${elements.qrMargin.value} px`;
   elements.logoSizeOutput.textContent = `${elements.logoSize.value}%`;
   elements.logoRadiusOutput.textContent = `${elements.logoRadius.value}%`;
+}
+
+function syncGradientControls() {
+  const enabled = elements.qrGradientEnabled.checked;
+  elements.qrGradientMode.disabled = !enabled;
+  elements.qrGradientStart.disabled = !enabled;
+  elements.qrGradientEnd.disabled = !enabled;
 }
 
 function setMode(mode, options = {}) {
@@ -212,6 +227,7 @@ async function updateQr() {
     state.encoded = encoded;
     elements.encodedOutput.value = encoded;
     elements.feedback.textContent = "";
+    saveDraft();
   } catch (error) {
     const message = error.message || "Impossible de preparer ce QR code.";
     state.encoded = "";
@@ -548,7 +564,7 @@ function getCurrentSettings() {
     qrRoundness: 0,
     qrShape: "square",
     qrGradient: gradientColors,
-    qrGradientMode: elements.qrGradientMode.value,
+    qrGradientMode: elements.qrGradientEnabled.checked ? elements.qrGradientMode.value : "none",
     qrBackground: elements.qrLightColor.value,
     logoSizeRatio: Number(elements.logoSize.value) / 100,
     logoRadiusRatio: Number(elements.logoRadius.value) / 100,
@@ -557,7 +573,7 @@ function getCurrentSettings() {
 }
 
 function getGradientColors() {
-  return elements.qrGradientMode.value === "none"
+  return !elements.qrGradientEnabled.checked
     ? null
     : [elements.qrGradientStart.value, elements.qrGradientEnd.value];
 }
@@ -852,6 +868,10 @@ function updateQuality() {
 
   if (settings.margin < 16) {
     warnings.push("Marge courte : augmentez-la pour les impressions.");
+  }
+
+  if (settings.qrGradient && contrast < 6) {
+    warnings.push("Degrade colore : scannez le QR avec un telephone avant usage public.");
   }
 
   elements.qualityPanel.hidden = false;
@@ -1219,6 +1239,7 @@ function favoriteCurrentQr() {
       settings: getCurrentSettings(),
       logoSource: state.logoSource,
       logoType: state.logoType,
+      tag: elements.favoriteTag.value,
     };
   } else {
     state.favorites.unshift({
@@ -1230,6 +1251,7 @@ function favoriteCurrentQr() {
       settings: getCurrentSettings(),
       logoSource: state.logoSource,
       logoType: state.logoType,
+      tag: elements.favoriteTag.value,
       favorite: true,
       createdAt: new Date().toISOString(),
     });
@@ -1333,6 +1355,11 @@ function collectModeFields() {
     appstoreUrl: elements.appstoreUrl.value,
     mediaType: elements.mediaType.value,
     mediaUrl: elements.mediaUrl.value,
+    favoriteTag: elements.favoriteTag.value,
+    qrGradientEnabled: elements.qrGradientEnabled.checked,
+    qrGradientMode: elements.qrGradientMode.value,
+    qrGradientStart: elements.qrGradientStart.value,
+    qrGradientEnd: elements.qrGradientEnd.value,
     favoriteName: elements.favoriteName.value,
   };
 }
@@ -1350,22 +1377,23 @@ function writeFavorites() {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(state.favorites));
 }
 
-function renderFavorites() {
+function renderFavorites(editingId = "") {
   elements.favoritesList.innerHTML = "";
 
   const query = normalizeSearch(elements.favoritesSearch.value);
   const items = query
-    ? state.favorites.filter((item) => normalizeSearch(`${item.name} ${MODE_LABELS[item.mode] || ""} ${item.content}`).includes(query))
+    ? state.favorites.filter((item) => normalizeSearch(`${item.name} ${item.tag || ""} ${MODE_LABELS[item.mode] || ""} ${item.content}`).includes(query))
     : state.favorites;
 
   renderFavoriteCollection(
     elements.favoritesList,
     items,
     query ? "Aucun favori ne correspond a cette recherche." : "Aucun favori pour le moment.",
+    editingId,
   );
 }
 
-function renderFavoriteCollection(container, items, emptyMessage) {
+function renderFavoriteCollection(container, items, emptyMessage, editingId = "") {
   if (items.length === 0) {
     const empty = document.createElement("p");
     empty.className = "favorite-empty";
@@ -1396,6 +1424,9 @@ function renderFavoriteCollection(container, items, emptyMessage) {
     const time = document.createElement("span");
     time.className = "favorite-time";
     time.textContent = formatDate(item.createdAt);
+    const tag = document.createElement("span");
+    tag.className = "favorite-tag";
+    tag.textContent = item.tag || "Perso";
 
     const title = document.createElement("h3");
     title.className = "favorite-title";
@@ -1405,7 +1436,7 @@ function renderFavoriteCollection(container, items, emptyMessage) {
     content.className = "favorite-content";
     content.textContent = item.content;
 
-    meta.append(badge, time);
+    meta.append(badge, tag, time);
     details.append(meta, title, content);
 
     const actions = document.createElement("div");
@@ -1420,12 +1451,17 @@ function renderFavoriteCollection(container, items, emptyMessage) {
     moveDownButton.setAttribute("aria-label", "Descendre ce favori");
     moveDownButton.disabled = index === items.length - 1;
     const reuseButton = createFavoriteButton("Reprendre", () => reuseFavorite(item));
+    const renameButton = createFavoriteButton("Renommer", () => renderFavorites(item.id));
+    const duplicateButton = createFavoriteButton("Dupliquer", () => duplicateFavorite(item.id));
     const copyQrButton = createFavoriteButton("Copier QR", () => copyFavoriteQr(item));
     const copyContentButton = createFavoriteButton("Copier contenu", () => copyFavoriteContent(item));
     const deleteButton = createFavoriteButton("Supprimer", () => deleteFavorite(item.id), "danger-action");
 
-    actions.append(moveUpButton, moveDownButton, reuseButton, copyQrButton, copyContentButton, deleteButton);
+    actions.append(moveUpButton, moveDownButton, reuseButton, renameButton, duplicateButton, copyQrButton, copyContentButton, deleteButton);
     article.append(preview, details, actions);
+    if (item.id === editingId) {
+      article.appendChild(createFavoriteEditForm(item));
+    }
     fragment.appendChild(article);
   });
 
@@ -1471,6 +1507,63 @@ function createFavoriteButton(label, onClick, extraClass = "") {
   button.textContent = label;
   button.addEventListener("click", onClick);
   return button;
+}
+
+function createFavoriteEditForm(item) {
+  const form = document.createElement("div");
+  form.className = "favorite-edit-form";
+
+  const nameField = document.createElement("label");
+  nameField.className = "field";
+  nameField.innerHTML = "<span>Nom</span>";
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.value = item.name || "";
+  nameField.appendChild(nameInput);
+
+  const tagField = document.createElement("label");
+  tagField.className = "field";
+  tagField.innerHTML = "<span>Categorie</span>";
+  const tagSelect = document.createElement("select");
+  ["Perso", "Pro", "Resto", "Wi-Fi", "Client"].forEach((tag) => {
+    const option = document.createElement("option");
+    option.value = tag;
+    option.textContent = tag;
+    tagSelect.appendChild(option);
+  });
+  tagSelect.value = item.tag || "Perso";
+  tagField.appendChild(tagSelect);
+
+  const saveButton = createFavoriteButton("Enregistrer", () => {
+    item.name = nameInput.value.trim() || item.name || "QR code";
+    item.tag = tagSelect.value;
+    writeFavorites();
+    renderFavorites();
+    setFeedback("Favori modifie.");
+  });
+  saveButton.classList.add("primary-mini-action");
+  const cancelButton = createFavoriteButton("Annuler", () => renderFavorites());
+
+  form.append(nameField, tagField, saveButton, cancelButton);
+  return form;
+}
+
+function duplicateFavorite(id) {
+  const item = state.favorites.find((favorite) => favorite.id === id);
+  if (!item) {
+    return;
+  }
+
+  state.favorites.unshift({
+    ...item,
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    name: `${item.name || "QR code"} copie`,
+    createdAt: new Date().toISOString(),
+  });
+  state.favorites = state.favorites.slice(0, MAX_FAVORITES);
+  writeFavorites();
+  renderFavorites();
+  setFeedback("Favori duplique.");
 }
 
 function reuseFavorite(item) {
@@ -1520,6 +1613,11 @@ function applyModeFields(fields = {}, content = "") {
   elements.appstoreUrl.value = fields.appstoreUrl || "";
   elements.mediaType.value = fields.mediaType || "image";
   elements.mediaUrl.value = fields.mediaUrl || "";
+  elements.favoriteTag.value = fields.favoriteTag || "Perso";
+  elements.qrGradientEnabled.checked = fields.qrGradientEnabled !== false;
+  elements.qrGradientMode.value = fields.qrGradientMode || "linear";
+  elements.qrGradientStart.value = fields.qrGradientStart || "#1769e0";
+  elements.qrGradientEnd.value = fields.qrGradientEnd || "#14b8d2";
   elements.favoriteName.value = fields.favoriteName || fields.historyName || "";
 }
 
@@ -1528,7 +1626,8 @@ function applySettings(settings = {}) {
   elements.qrErrorLevel.value = settings.errorLevel || "H";
   elements.qrDarkColor.value = settings.darkColor || "#111827";
   elements.qrLightColor.value = settings.lightColor || "#ffffff";
-  elements.qrGradientMode.value = settings.qrGradientMode || (settings.qrGradient ? "diagonal" : "linear");
+  elements.qrGradientEnabled.checked = settings.qrGradientMode !== "none" && Boolean(settings.qrGradient);
+  elements.qrGradientMode.value = settings.qrGradientMode && settings.qrGradientMode !== "none" ? settings.qrGradientMode : "linear";
   elements.qrGradientStart.value = settings.qrGradient?.[0] || settings.darkColor || "#1769e0";
   elements.qrGradientEnd.value = settings.qrGradient?.[1] || "#14b8d2";
   elements.qrMargin.value = String(settings.margin || 32);
@@ -1536,6 +1635,7 @@ function applySettings(settings = {}) {
   elements.logoRadius.value = String(Math.round((settings.logoRadiusRatio || 0.2) * 100));
   elements.logoBackground.checked = settings.logoBackground !== false;
   syncRangeOutputs();
+  syncGradientControls();
 }
 
 async function copyFavoriteQr(item) {
@@ -1574,7 +1674,7 @@ function normalizeSettings(settings = {}) {
     qrRoundness: settings.qrRoundness ?? 0,
     qrShape: settings.qrShape || settings.qrPointShape || "square",
     qrGradient: settings.qrGradient || null,
-    qrGradientMode: settings.qrGradientMode || "diagonal",
+    qrGradientMode: settings.qrGradientMode || (settings.qrGradient ? "diagonal" : "none"),
     qrBackground: settings.qrBackground || settings.lightColor || "#ffffff",
     logoSizeRatio: settings.logoSizeRatio || 0.22,
     logoRadiusRatio: settings.logoRadiusRatio ?? 0.2,
@@ -1586,6 +1686,40 @@ function deleteFavorite(id) {
   state.favorites = state.favorites.filter((item) => item.id !== id);
   writeFavorites();
   renderFavorites();
+}
+
+function saveDraft() {
+  const draft = {
+    mode: state.mode,
+    fields: collectModeFields(),
+    settings: getCurrentSettings(),
+    logoSource: state.logoSource,
+    logoType: state.logoType,
+  };
+
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch (error) {
+    // localStorage can be full or disabled; the app can continue without draft restore.
+  }
+}
+
+function restoreDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    if (!draft || typeof draft !== "object") {
+      return;
+    }
+
+    setMode(draft.mode || "text", { skipUpdate: true });
+    applyModeFields(draft.fields || {}, "");
+    applySettings(draft.settings || {});
+    state.logoSource = draft.logoSource || "";
+    state.logoType = normalizeLogoType(draft.logoType, state.logoSource);
+    updateLogoPresetButtons(state.logoType);
+  } catch (error) {
+    localStorage.removeItem(DRAFT_KEY);
+  }
 }
 
 function resetForm() {
@@ -1600,8 +1734,37 @@ function resetForm() {
   elements.qrGradientEnd.value = "#14b8d2";
   updateLogoPresetButtons("none");
   syncRangeOutputs();
+  syncGradientControls();
   updateQr();
   setFeedback("Formulaire reinitialise.");
+}
+
+function resetDesign() {
+  applyDefaultDesignSettings();
+  updateQr();
+  setFeedback("Design QR reinitialise.");
+}
+
+function applyDefaultDesignSettings() {
+  elements.qrSize.value = "768";
+  elements.qrErrorLevel.value = "H";
+  elements.qrDarkColor.value = "#111827";
+  elements.qrLightColor.value = "#ffffff";
+  elements.qrGradientEnabled.checked = false;
+  elements.qrGradientMode.value = "linear";
+  elements.qrGradientStart.value = "#1769e0";
+  elements.qrGradientEnd.value = "#14b8d2";
+  elements.qrMargin.value = "32";
+  state.logoSource = "";
+  state.logoType = "none";
+  elements.logoFile.value = "";
+  elements.logoUrl.value = "";
+  elements.logoSize.value = "22";
+  elements.logoRadius.value = "20";
+  elements.logoBackground.checked = true;
+  updateLogoPresetButtons("none");
+  syncRangeOutputs();
+  syncGradientControls();
 }
 
 function setLogoPreset(key) {

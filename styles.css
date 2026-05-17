@@ -336,6 +336,11 @@ h1 {
   background: #effcff;
 }
 
+.gradient-toggle {
+  min-height: auto;
+  padding: 4px 0;
+}
+
 .mini-section-title {
   display: grid;
   gap: 3px;
@@ -632,8 +637,9 @@ button:disabled {
 .validation-panel {
   grid-template-columns: auto 1fr;
   align-items: start;
-  border-color: rgba(244, 109, 79, 0.26);
-  background: #fff3ef;
+  border-color: rgba(244, 109, 79, 0.5);
+  background: #fff0ec;
+  box-shadow: 0 10px 24px rgba(244, 109, 79, 0.12);
 }
 
 .scan-action span,
@@ -759,9 +765,10 @@ button:disabled {
 
 .quality-panel.warning,
 .scan-check-panel.warning {
-  border-color: rgba(244, 109, 79, 0.28);
+  border-color: rgba(244, 109, 79, 0.5);
   background: #fff0ec;
   color: #9f321f;
+  box-shadow: 0 10px 24px rgba(244, 109, 79, 0.12);
 }
 
 .quality-panel p,
@@ -870,6 +877,15 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.favorite-tag {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #effcff;
+  color: #0e7490;
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
 .favorite-time {
   color: var(--muted);
   font-size: 0.82rem;
@@ -886,8 +902,26 @@ button:disabled {
 
 .favorite-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
+}
+
+.favorite-edit-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px auto auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid rgba(23, 105, 224, 0.18);
+  border-radius: 8px;
+  background: var(--primary-soft);
+}
+
+.primary-mini-action {
+  border-color: transparent;
+  background: var(--primary);
+  color: #fff;
 }
 
 .small-action {
@@ -940,6 +974,7 @@ button:disabled {
 
   .preview-panel {
     position: static;
+    order: -1;
   }
 
   .privacy-note {
@@ -959,7 +994,7 @@ button:disabled {
   }
 
   .qr-stage {
-    min-height: 320px;
+    min-height: min(78vw, 430px);
   }
 
   .favorite-item {
@@ -994,7 +1029,8 @@ button:disabled {
 
   .actions,
   .favorite-actions,
-  .favorite-form {
+  .favorite-form,
+  .favorite-edit-form {
     display: grid;
     grid-template-columns: 1fr;
   }

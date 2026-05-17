@@ -34,9 +34,15 @@ QR-maker est une application web statique pour generer rapidement des QR codes u
 - Copie du contenu encode dans le presse-papiers.
 - Zone Favoris en haut de page avec bouton Mettre en favoris, reprise, tri par fleches, copie QR et suppression.
 - Recherche dans les favoris.
+- Renommage propre des favoris avec categorie.
+- Tags de favoris : perso, pro, resto, Wi-Fi et client.
+- Duplication d'un favori pour creer des variantes.
 - Copie du contenu encode depuis chaque favori.
 - Stockage local nettoye : seuls les favoris sont conserves.
 - Menu de type de QR plus compact sur mobile.
+- Apercu QR prioritaire et agrandi sur mobile.
+- Sauvegarde locale du dernier formulaire en cours.
+- Bouton de reinitialisation du design QR sans effacer le contenu.
 - Bouton de reinitialisation du formulaire.
 - Interface responsive desktop et mobile.
 
