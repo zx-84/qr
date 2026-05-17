@@ -373,48 +373,31 @@
                   <span>Fond</span>
                   <input id="qr-light-color" type="color" value="#ffffff">
                 </label>
-                <label class="field">
-                  <span>Style visuel</span>
-                  <select id="qr-style"></select>
-                </label>
-                <div class="style-picker full-field">
-                  <button class="secondary-action style-picker-button" id="style-picker-button" type="button">
-                    Choisir un style avec exemples
-                  </button>
-                  <div class="style-popover" id="style-popover" hidden>
-                    <div class="style-popover-head">
-                      <div>
-                        <strong>Styles QR</strong>
-                        <span>Exemples generes avec un vrai QR code</span>
-                      </div>
-                      <button class="small-action" id="style-close-button" type="button">Fermer</button>
-                    </div>
-                    <div class="style-import-box">
-                      <div>
-                        <strong>Importer un style depuis une image</strong>
-                        <span>Analyse les couleurs et utilise l'image comme texture du QR.</span>
-                      </div>
-                      <div class="style-import-grid">
-                        <label class="field file-field">
-                          <span>Importer image</span>
-                          <input id="style-image-file" type="file" accept="image/png,image/jpeg,image/webp">
-                        </label>
-                        <label class="field">
-                          <span>Via lien</span>
-                          <div class="url-field">
-                            <input id="style-image-url" type="url" placeholder="https://exemple.com/qr-style.jpg">
-                            <button class="small-action" id="style-image-url-button" type="button">Analyser</button>
-                          </div>
-                        </label>
-                      </div>
-                    </div>
-                    <div class="style-gallery" id="style-gallery" aria-label="Exemples de styles QR"></div>
+                <div class="gradient-builder full-field">
+                  <div class="mini-section-title">
+                    <strong>Creer un degrade</strong>
+                    <span>Choisissez deux couleurs pour remplir les points du QR.</span>
+                  </div>
+                  <div class="field-grid">
+                    <label class="field">
+                      <span>Type</span>
+                      <select id="qr-gradient-mode">
+                        <option value="none">Aucun degrade</option>
+                        <option value="linear" selected>Lineaire</option>
+                        <option value="diagonal">Diagonal</option>
+                        <option value="radial">Radial</option>
+                      </select>
+                    </label>
+                    <label class="field">
+                      <span>Couleur 1</span>
+                      <input id="qr-gradient-start" type="color" value="#1769e0">
+                    </label>
+                    <label class="field">
+                      <span>Couleur 2</span>
+                      <input id="qr-gradient-end" type="color" value="#14b8d2">
+                    </label>
                   </div>
                 </div>
-                <label class="field range-field">
-                  <span>Douceur <output id="qr-roundness-output">32%</output></span>
-                  <input id="qr-roundness" type="range" min="0" max="48" step="4" value="32">
-                </label>
                 <label class="field full-field range-field">
                   <span>Marge <output id="qr-margin-output">32 px</output></span>
                   <input id="qr-margin" type="range" min="8" max="80" step="4" value="32">

@@ -20,10 +20,7 @@ QR-maker est une application web statique pour generer rapidement des QR codes u
 - Apercu clair de ce que le scan fera pour chaque type de QR code.
 - Apercu du type de lien detecte, avec rappel pour les fichiers partages publiquement.
 - Validations utiles pour email, telephone, WhatsApp, Wi-Fi, evenement, app store et media.
-- Fenetre de styles QR avec de vraies vignettes generees : classique, arrondi, points, classy, affiche coloree, ocean, berry, neon, soft, encre et autres variantes.
-- Import de style depuis une image locale ou un lien d'image, avec analyse des couleurs principales.
-- Styles avec textures d'image dans les modules du QR : vagues, marbre, papier, mosaique et aurore.
-- Reglage de douceur des modules pour styliser le rendu sans changer le contenu encode.
+- Creation de degrade pour les points du QR : aucun, lineaire, diagonal ou radial.
 - Apercu instantane du QR code.
 - Reglages de taille PNG, marge, couleur du QR, couleur de fond et correction d'erreur.
 - Logos de base integrables au centre du QR code.

@@ -10,36 +10,6 @@ const LOGO_PRESETS = {
   info: buildLogoDataUri("INFO", "#f46d4f", "#ff9b73"),
 };
 
-const STYLE_PRESETS = {
-  square: { label: "Classique", dark: "#000000", light: "#ffffff", roundness: 0, shape: "square" },
-  rounded: { label: "Arrondi", dark: "#1769e0", light: "#ffffff", roundness: 32, shape: "rounded" },
-  dots: { label: "Points", dark: "#5b8def", light: "#fff7fb", roundness: 48, shape: "dots" },
-  classy: { label: "Classy", dark: "#050816", light: "#f7f8fb", roundness: 28, shape: "rounded", gradient: ["#050816", "#14b8d2"] },
-  poster: { label: "Affiche", dark: "#5f1846", light: "#fff7fb", roundness: 36, shape: "rounded", background: "#fff7fb", gradient: ["#5f1846", "#7b245d", "#1769e0"] },
-  ocean: { label: "Ocean", dark: "#075985", light: "#ecfeff", roundness: 34, shape: "rounded", background: "#ecfeff", gradient: ["#075985", "#0891b2", "#22d3ee"] },
-  berry: { label: "Berry", dark: "#7f1d5a", light: "#fff1f7", roundness: 40, shape: "rounded", background: "#fff1f7", gradient: ["#7f1d5a", "#be185d", "#f97316"] },
-  neon: { label: "Neon", dark: "#111827", light: "#f7fbff", roundness: 24, shape: "rounded", background: "#f7fbff", gradient: ["#111827", "#1769e0", "#14b8d2"] },
-  soft: { label: "Soft", dark: "#315b7c", light: "#f8fbff", roundness: 44, shape: "dots", background: "#f8fbff", gradient: ["#315b7c", "#5b8def"] },
-  ink: { label: "Encre", dark: "#172033", light: "#fbfaf7", roundness: 18, shape: "rounded", background: "#fbfaf7", gradient: ["#172033", "#5f1846"] },
-  forest: { label: "Forest", dark: "#14532d", light: "#f0fdf4", roundness: 30, shape: "rounded", background: "#f0fdf4", gradient: ["#14532d", "#22a06b"] },
-  sunset: { label: "Sunset", dark: "#9a3412", light: "#fff7ed", roundness: 36, shape: "rounded", background: "#fff7ed", gradient: ["#9a3412", "#f46d4f", "#f59e0b"] },
-  violet: { label: "Violet", dark: "#4c1d95", light: "#faf5ff", roundness: 34, shape: "rounded", background: "#faf5ff", gradient: ["#4c1d95", "#7c3aed"] },
-  slate: { label: "Slate", dark: "#0f172a", light: "#f8fafc", roundness: 16, shape: "rounded", background: "#f8fafc", gradient: ["#0f172a", "#475569"] },
-  candy: { label: "Candy", dark: "#be185d", light: "#fff7fb", roundness: 46, shape: "dots", background: "#fff7fb", gradient: ["#be185d", "#fb7185"] },
-  mint: { label: "Mint", dark: "#0f766e", light: "#f0fdfa", roundness: 42, shape: "dots", background: "#f0fdfa", gradient: ["#0f766e", "#2dd4bf"] },
-  gold: { label: "Gold", dark: "#713f12", light: "#fffbea", roundness: 24, shape: "rounded", background: "#fffbea", gradient: ["#713f12", "#d97706"] },
-  rose: { label: "Rose", dark: "#9f1239", light: "#fff1f2", roundness: 38, shape: "rounded", background: "#fff1f2", gradient: ["#9f1239", "#f43f5e"] },
-  ice: { label: "Ice", dark: "#155e75", light: "#f0fdff", roundness: 46, shape: "dots", background: "#f0fdff", gradient: ["#155e75", "#67e8f9"] },
-  mono: { label: "Mono", dark: "#262626", light: "#fafafa", roundness: 8, shape: "square" },
-  night: { label: "Night", dark: "#e5e7eb", light: "#111827", roundness: 24, shape: "rounded", background: "#111827", gradient: ["#e5e7eb", "#93c5fd"] },
-  coral: { label: "Corail", dark: "#c2410c", light: "#fff5f0", roundness: 36, shape: "rounded", background: "#fff5f0", gradient: ["#c2410c", "#f46d4f"] },
-  waves: { label: "Image vagues", dark: "#075985", light: "#effcff", roundness: 36, shape: "rounded", background: "#effcff", texture: "waves" },
-  marble: { label: "Image marbre", dark: "#334155", light: "#f8fafc", roundness: 22, shape: "rounded", background: "#f8fafc", texture: "marble" },
-  paper: { label: "Image papier", dark: "#713f12", light: "#fffbea", roundness: 18, shape: "square", background: "#fffbea", texture: "paper" },
-  mosaic: { label: "Image mosaique", dark: "#4c1d95", light: "#faf5ff", roundness: 34, shape: "rounded", background: "#faf5ff", texture: "mosaic" },
-  aurora: { label: "Image aurore", dark: "#064e3b", light: "#ecfdf5", roundness: 42, shape: "dots", background: "#ecfdf5", texture: "aurora" },
-};
-
 const MODE_LABELS = {
   text: "Texte",
   wifi: "Wi-Fi",
@@ -60,7 +30,6 @@ const state = {
   encoded: "",
   logoSource: "",
   logoType: "none",
-  styleImageSource: "",
   favorites: readFavorites(),
   renderVersion: 0,
 };
@@ -144,16 +113,9 @@ const elements = {
   qrErrorLevel: document.querySelector("#qr-error-level"),
   qrDarkColor: document.querySelector("#qr-dark-color"),
   qrLightColor: document.querySelector("#qr-light-color"),
-  qrStyle: document.querySelector("#qr-style"),
-  stylePickerButton: document.querySelector("#style-picker-button"),
-  styleCloseButton: document.querySelector("#style-close-button"),
-  stylePopover: document.querySelector("#style-popover"),
-  styleGallery: document.querySelector("#style-gallery"),
-  styleImageFile: document.querySelector("#style-image-file"),
-  styleImageUrl: document.querySelector("#style-image-url"),
-  styleImageUrlButton: document.querySelector("#style-image-url-button"),
-  qrRoundness: document.querySelector("#qr-roundness"),
-  qrRoundnessOutput: document.querySelector("#qr-roundness-output"),
+  qrGradientMode: document.querySelector("#qr-gradient-mode"),
+  qrGradientStart: document.querySelector("#qr-gradient-start"),
+  qrGradientEnd: document.querySelector("#qr-gradient-end"),
   qrMargin: document.querySelector("#qr-margin"),
   qrMarginOutput: document.querySelector("#qr-margin-output"),
   logoSize: document.querySelector("#logo-size"),
@@ -164,14 +126,11 @@ const elements = {
 };
 
 window.addEventListener("load", () => {
-  renderStyleOptions();
   bindEvents();
   syncRangeOutputs();
-  syncStyleCards();
   writeFavorites();
   renderFavorites();
   updateQr();
-  renderStyleThumbnails();
 });
 
 function bindEvents() {
@@ -182,7 +141,7 @@ function bindEvents() {
   elements.favoritesSearch.addEventListener("input", renderFavorites);
 
   elements.formInputs.forEach((input) => {
-    if (["logo-file", "logo-url", "mode-select", "favorites-search", "style-image-file", "style-image-url"].includes(input.id)) {
+    if (["logo-file", "logo-url", "mode-select", "favorites-search"].includes(input.id)) {
       return;
     }
 
@@ -192,17 +151,6 @@ function bindEvents() {
 
   elements.logoPresets.forEach((button) => {
     button.addEventListener("click", () => setLogoPreset(button.dataset.logo));
-  });
-  elements.stylePickerButton.addEventListener("click", toggleStylePopover);
-  elements.styleCloseButton.addEventListener("click", closeStylePopover);
-  elements.styleGallery.addEventListener("click", handleStyleGalleryClick);
-  elements.styleImageFile.addEventListener("change", handleStyleImageUpload);
-  elements.styleImageUrlButton.addEventListener("click", handleStyleImageUrl);
-  elements.styleImageUrl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleStyleImageUrl();
-    }
   });
 
   elements.logoFile.addEventListener("change", handleLogoUpload);
@@ -224,271 +172,15 @@ function bindEvents() {
   elements.resetButton.addEventListener("click", resetForm);
 }
 
-function handleFormInput(event) {
-  if (event?.target?.id === "qr-style") {
-    state.styleImageSource = "";
-    applyStyleDefaults(elements.qrStyle.value);
-  }
-
+function handleFormInput() {
   syncRangeOutputs();
-  syncStyleCards();
   updateQr();
 }
 
 function syncRangeOutputs() {
   elements.qrMarginOutput.textContent = `${elements.qrMargin.value} px`;
-  elements.qrRoundnessOutput.textContent = `${elements.qrRoundness.value}%`;
   elements.logoSizeOutput.textContent = `${elements.logoSize.value}%`;
   elements.logoRadiusOutput.textContent = `${elements.logoRadius.value}%`;
-}
-
-function setQrStyle(style) {
-  state.styleImageSource = "";
-  elements.qrStyle.value = style;
-  applyStyleDefaults(style);
-  syncRangeOutputs();
-  syncStyleCards();
-  updateQr();
-}
-
-function syncStyleCards() {
-  elements.styleGallery.querySelectorAll(".style-card").forEach((button) => {
-    button.classList.toggle("active", button.dataset.style === elements.qrStyle.value);
-  });
-}
-
-function applyStyleDefaults(style) {
-  const selected = STYLE_PRESETS[style];
-
-  if (!selected) {
-    elements.qrRoundness.value = "32";
-    return;
-  }
-
-  elements.qrDarkColor.value = selected.dark;
-  elements.qrLightColor.value = selected.light;
-  elements.qrRoundness.value = String(selected.roundness);
-}
-
-function renderStyleOptions() {
-  elements.qrStyle.innerHTML = "";
-  elements.styleGallery.innerHTML = "";
-
-  const customOption = document.createElement("option");
-  customOption.value = "custom";
-  customOption.textContent = "Importe depuis image";
-  elements.qrStyle.appendChild(customOption);
-
-  Object.entries(STYLE_PRESETS).forEach(([key, preset]) => {
-    const option = document.createElement("option");
-    option.value = key;
-    option.textContent = preset.label;
-    elements.qrStyle.appendChild(option);
-
-    const button = document.createElement("button");
-    button.className = "style-card";
-    button.type = "button";
-    button.dataset.style = key;
-
-    const preview = document.createElement("span");
-    preview.className = "style-preview";
-    preview.dataset.preview = key;
-    preview.textContent = "QR";
-
-    const label = document.createElement("span");
-    label.textContent = preset.label;
-
-    button.append(preview, label);
-    elements.styleGallery.appendChild(button);
-  });
-
-  elements.qrStyle.value = "rounded";
-}
-
-async function renderStyleThumbnails() {
-  if (typeof QRCode === "undefined") {
-    return;
-  }
-
-  for (const [key, preset] of Object.entries(STYLE_PRESETS)) {
-    const host = elements.styleGallery.querySelector(`[data-preview="${key}"]`);
-    if (!host) {
-      continue;
-    }
-
-    try {
-      const canvas = await renderQrCanvas("https://QR-maker.app", stylePreviewSettings(preset, key), "", 88);
-      host.textContent = "";
-      host.appendChild(canvas);
-    } catch (error) {
-      host.textContent = "QR";
-    }
-  }
-}
-
-function stylePreviewSettings(preset, key) {
-  return {
-    outputSize: 88,
-    margin: 8,
-    errorLevel: "H",
-    darkColor: preset.dark,
-    lightColor: preset.light,
-    qrStyle: key,
-    qrRoundness: preset.roundness / 100,
-    qrShape: preset.shape,
-    qrGradient: preset.gradient,
-    qrBackground: preset.background,
-    qrTexture: preset.texture,
-    logoSizeRatio: 0.2,
-    logoRadiusRatio: 0.2,
-    logoBackground: true,
-  };
-}
-
-function toggleStylePopover() {
-  elements.stylePopover.hidden = !elements.stylePopover.hidden;
-}
-
-function closeStylePopover() {
-  elements.stylePopover.hidden = true;
-}
-
-function handleStyleGalleryClick(event) {
-  const button = event.target.closest(".style-card");
-  if (!button) {
-    return;
-  }
-
-  setQrStyle(button.dataset.style);
-  closeStylePopover();
-}
-
-function handleStyleImageUpload() {
-  const file = elements.styleImageFile.files?.[0];
-  if (!file) {
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.addEventListener("load", async () => {
-    await importStyleFromImage(String(reader.result));
-  });
-  reader.readAsDataURL(file);
-}
-
-async function handleStyleImageUrl() {
-  const url = elements.styleImageUrl.value.trim();
-  if (!url) {
-    setFeedback("Ajoutez un lien d'image a analyser.");
-    return;
-  }
-
-  try {
-    await importStyleFromImage(new URL(url).href, true);
-  } catch (error) {
-    setFeedback("Lien d'image invalide.");
-  }
-}
-
-async function importStyleFromImage(source, fromUrl = false) {
-  try {
-    const image = fromUrl
-      ? await loadImage(source, "anonymous")
-      : await loadImage(source);
-    const palette = extractImagePalette(image, source);
-    applyImportedStyle(palette);
-    setFeedback("Style importe depuis l'image.");
-  } catch (error) {
-    const message = fromUrl
-      ? "Analyse bloquee par ce site. Importez l'image depuis votre appareil."
-      : "Impossible d'analyser cette image.";
-    setFeedback(message);
-  }
-}
-
-function extractImagePalette(image, source) {
-  const size = 96;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  context.drawImage(image, 0, 0, size, size);
-
-  const data = context.getImageData(0, 0, size, size).data;
-  const samples = [];
-
-  for (let index = 0; index < data.length; index += 16) {
-    const alpha = data[index + 3];
-    if (alpha < 180) {
-      continue;
-    }
-
-    const rgb = [data[index], data[index + 1], data[index + 2]];
-    const luminance = getRgbLuminance(rgb);
-    const saturation = getRgbSaturation(rgb);
-    samples.push({ rgb, luminance, saturation });
-  }
-
-  const colorful = samples
-    .filter((sample) => sample.saturation > 0.12)
-    .sort((a, b) => b.saturation - a.saturation);
-  const dark = samples
-    .filter((sample) => sample.luminance < 0.54)
-    .sort((a, b) => b.saturation - a.saturation || a.luminance - b.luminance);
-  const light = samples
-    .filter((sample) => sample.luminance > 0.68)
-    .sort((a, b) => a.saturation - b.saturation || b.luminance - a.luminance);
-
-  const darkColor = rgbToHex((colorful[0] || dark[0] || samples[0])?.rgb || [23, 105, 224]);
-  const accentColor = rgbToHex((colorful[8] || colorful[1] || dark[1] || samples[1])?.rgb || [20, 184, 210]);
-  const lightColor = rgbToHex((light[0] || samples.sort((a, b) => b.luminance - a.luminance)[0])?.rgb || [255, 255, 255]);
-
-  return {
-    source,
-    darkColor,
-    accentColor,
-    lightColor,
-    saturation: average(samples.map((sample) => sample.saturation)),
-    contrast: getContrastRatio(darkColor, lightColor),
-  };
-}
-
-function applyImportedStyle(palette) {
-  state.styleImageSource = palette.source;
-  elements.qrStyle.value = "custom";
-  elements.qrDarkColor.value = ensureReadableColor(palette.darkColor, palette.lightColor);
-  elements.qrLightColor.value = palette.lightColor;
-  elements.qrRoundness.value = palette.saturation > 0.35 ? "40" : "28";
-  syncRangeOutputs();
-  syncStyleCards();
-  updateQr();
-}
-
-function ensureReadableColor(darkColor, lightColor) {
-  return getContrastRatio(darkColor, lightColor) >= 3.5 ? darkColor : "#111827";
-}
-
-function getRgbLuminance(rgb) {
-  const adjusted = rgb.map((value) => {
-    const channel = value / 255;
-    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-  });
-  return adjusted[0] * 0.2126 + adjusted[1] * 0.7152 + adjusted[2] * 0.0722;
-}
-
-function getRgbSaturation(rgb) {
-  const values = rgb.map((value) => value / 255);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  return max === 0 ? 0 : (max - min) / max;
-}
-
-function rgbToHex(rgb) {
-  return `#${rgb.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
-}
-
-function average(values) {
-  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
 function setMode(mode, options = {}) {
@@ -845,24 +537,29 @@ function normalizeUrl(value) {
 }
 
 function getCurrentSettings() {
-  const preset = getStylePreset(elements.qrStyle.value);
+  const gradientColors = getGradientColors();
   return {
     outputSize: Number(elements.qrSize.value),
     margin: Number(elements.qrMargin.value),
     errorLevel: elements.qrErrorLevel.value,
     darkColor: elements.qrDarkColor.value,
     lightColor: elements.qrLightColor.value,
-    qrStyle: elements.qrStyle.value,
-    qrRoundness: Number(elements.qrRoundness.value) / 100,
-    qrShape: preset.shape,
-    qrGradient: preset.gradient,
-    qrBackground: preset.background,
-    qrTexture: preset.texture,
-    qrImageSource: state.styleImageSource,
+    qrStyle: "custom",
+    qrRoundness: 0,
+    qrShape: "square",
+    qrGradient: gradientColors,
+    qrGradientMode: elements.qrGradientMode.value,
+    qrBackground: elements.qrLightColor.value,
     logoSizeRatio: Number(elements.logoSize.value) / 100,
     logoRadiusRatio: Number(elements.logoRadius.value) / 100,
     logoBackground: elements.logoBackground.checked,
   };
+}
+
+function getGradientColors() {
+  return elements.qrGradientMode.value === "none"
+    ? null
+    : [elements.qrGradientStart.value, elements.qrGradientEnd.value];
 }
 
 async function renderQrCanvas(encoded, settings, logoSource, outputSize = settings.outputSize) {
@@ -1054,7 +751,16 @@ function scoreFinder(matrix, startRow, startCol) {
 }
 
 function drawStyledModule(context, x, y, size, settings, isFinder) {
-  const shape = settings.qrShape || getStylePreset(settings.qrStyle).shape;
+  const shape = settings.qrShape || "square";
+  if (shape === "square") {
+    const left = Math.floor(x);
+    const top = Math.floor(y);
+    const right = Math.ceil(x + size);
+    const bottom = Math.ceil(y + size);
+    context.fillRect(left, top, right - left, bottom - top);
+    return;
+  }
+
   const gap = shape === "dots" && !isFinder ? size * 0.18 : size * 0.08;
   const moduleX = x + gap / 2;
   const moduleY = y + gap / 2;
@@ -1067,7 +773,7 @@ function drawStyledModule(context, x, y, size, settings, isFinder) {
     return;
   }
 
-  const roundness = isFinder ? 0.12 : settings.qrRoundness;
+  const roundness = isFinder ? 0 : settings.qrRoundness;
   context.beginPath();
   roundedPath(context, moduleX, moduleY, moduleSize, moduleSize, moduleSize * roundness);
   context.fill();
@@ -1080,123 +786,24 @@ function isFinderModule(row, col, count) {
 }
 
 function getQrBackground(settings) {
-  return settings.qrBackground || getStylePreset(settings.qrStyle).background || settings.lightColor;
+  return settings.qrBackground || settings.lightColor;
 }
 
 async function getQrModuleFill(context, x, y, size, settings) {
-  if (settings.qrImageSource) {
-    try {
-      const image = await loadImage(settings.qrImageSource, settings.qrImageSource.startsWith("data:") ? undefined : "anonymous");
-      return createImageFillPattern(context, image, size);
-    } catch (error) {
-      return settings.darkColor;
-    }
-  }
-
-  if (settings.qrTexture) {
-    return context.createPattern(createTextureCanvas(settings.qrTexture), "repeat") || settings.darkColor;
-  }
-
-  const gradientColors = settings.qrGradient || getStylePreset(settings.qrStyle).gradient;
+  const gradientColors = settings.qrGradient;
   if (!gradientColors) {
     return settings.darkColor;
   }
 
-  const gradient = context.createLinearGradient(x, y, x + size, y + size);
+  const gradient = settings.qrGradientMode === "radial"
+    ? context.createRadialGradient(x + size / 2, y + size / 2, size * 0.08, x + size / 2, y + size / 2, size * 0.72)
+    : settings.qrGradientMode === "linear"
+      ? context.createLinearGradient(x, y, x + size, y)
+      : context.createLinearGradient(x, y, x + size, y + size);
   gradientColors.forEach((color, index) => {
     gradient.addColorStop(index / Math.max(1, gradientColors.length - 1), color);
   });
   return gradient;
-}
-
-function createImageFillPattern(context, image, size) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 140;
-  canvas.height = 140;
-  const texture = canvas.getContext("2d");
-  texture.drawImage(image, 0, 0, canvas.width, canvas.height);
-  texture.globalCompositeOperation = "multiply";
-  texture.fillStyle = "rgba(0, 0, 0, 0.18)";
-  texture.fillRect(0, 0, canvas.width, canvas.height);
-  return context.createPattern(canvas, "repeat") || "#111827";
-}
-
-function createTextureCanvas(textureName) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 96;
-  canvas.height = 96;
-  const context = canvas.getContext("2d");
-
-  const textureMap = {
-    waves: () => {
-      const gradient = context.createLinearGradient(0, 0, 96, 96);
-      gradient.addColorStop(0, "#075985");
-      gradient.addColorStop(0.55, "#0891b2");
-      gradient.addColorStop(1, "#22d3ee");
-      context.fillStyle = gradient;
-      context.fillRect(0, 0, 96, 96);
-      context.strokeStyle = "rgba(255,255,255,0.35)";
-      context.lineWidth = 5;
-      for (let y = 12; y < 110; y += 22) {
-        context.beginPath();
-        for (let x = -10; x <= 110; x += 8) {
-          const waveY = y + Math.sin(x / 9) * 6;
-          x === -10 ? context.moveTo(x, waveY) : context.lineTo(x, waveY);
-        }
-        context.stroke();
-      }
-    },
-    marble: () => {
-      context.fillStyle = "#f8fafc";
-      context.fillRect(0, 0, 96, 96);
-      for (let i = 0; i < 9; i += 1) {
-        context.strokeStyle = i % 2 ? "rgba(51,65,85,0.42)" : "rgba(23,105,224,0.22)";
-        context.lineWidth = 2;
-        context.beginPath();
-        context.moveTo(-10, i * 13);
-        context.bezierCurveTo(20, i * 9 + 18, 54, i * 17 - 20, 106, i * 12 + 8);
-        context.stroke();
-      }
-    },
-    paper: () => {
-      context.fillStyle = "#fffbea";
-      context.fillRect(0, 0, 96, 96);
-      for (let i = 0; i < 180; i += 1) {
-        context.fillStyle = i % 2 ? "rgba(113,63,18,0.22)" : "rgba(217,119,6,0.2)";
-        context.fillRect((i * 37) % 96, (i * 19) % 96, 1.4, 1.4);
-      }
-    },
-    mosaic: () => {
-      const colors = ["#4c1d95", "#7c3aed", "#be185d", "#1769e0"];
-      for (let y = 0; y < 96; y += 16) {
-        for (let x = 0; x < 96; x += 16) {
-          context.fillStyle = colors[((x + y) / 16) % colors.length];
-          context.fillRect(x, y, 15, 15);
-        }
-      }
-    },
-    aurora: () => {
-      const gradient = context.createLinearGradient(0, 96, 96, 0);
-      gradient.addColorStop(0, "#064e3b");
-      gradient.addColorStop(0.45, "#22a06b");
-      gradient.addColorStop(1, "#67e8f9");
-      context.fillStyle = gradient;
-      context.fillRect(0, 0, 96, 96);
-      context.fillStyle = "rgba(255,255,255,0.22)";
-      for (let x = -20; x < 100; x += 18) {
-        context.beginPath();
-        context.ellipse(x, 40 + Math.sin(x) * 12, 10, 44, 0.4, 0, Math.PI * 2);
-        context.fill();
-      }
-    },
-  };
-
-  (textureMap[textureName] || textureMap.waves)();
-  return canvas;
-}
-
-function getStylePreset(style) {
-  return STYLE_PRESETS[style] || STYLE_PRESETS.rounded;
 }
 
 function hexToRgb(hex) {
@@ -1921,15 +1528,14 @@ function applySettings(settings = {}) {
   elements.qrErrorLevel.value = settings.errorLevel || "H";
   elements.qrDarkColor.value = settings.darkColor || "#111827";
   elements.qrLightColor.value = settings.lightColor || "#ffffff";
-  elements.qrStyle.value = settings.qrStyle || "rounded";
-  state.styleImageSource = settings.qrImageSource || "";
-  elements.qrRoundness.value = String(Math.round((settings.qrRoundness ?? 0.32) * 100));
+  elements.qrGradientMode.value = settings.qrGradientMode || (settings.qrGradient ? "diagonal" : "linear");
+  elements.qrGradientStart.value = settings.qrGradient?.[0] || settings.darkColor || "#1769e0";
+  elements.qrGradientEnd.value = settings.qrGradient?.[1] || "#14b8d2";
   elements.qrMargin.value = String(settings.margin || 32);
   elements.logoSize.value = String(Math.round((settings.logoSizeRatio || 0.22) * 100));
   elements.logoRadius.value = String(Math.round((settings.logoRadiusRatio || 0.2) * 100));
   elements.logoBackground.checked = settings.logoBackground !== false;
   syncRangeOutputs();
-  syncStyleCards();
 }
 
 async function copyFavoriteQr(item) {
@@ -1958,7 +1564,6 @@ async function copyFavoriteContent(item) {
 }
 
 function normalizeSettings(settings = {}) {
-  const preset = getStylePreset(settings.qrStyle || "rounded");
   return {
     outputSize: settings.outputSize || 768,
     margin: settings.margin ?? 32,
@@ -1966,12 +1571,11 @@ function normalizeSettings(settings = {}) {
     darkColor: settings.darkColor || "#111827",
     lightColor: settings.lightColor || "#ffffff",
     qrStyle: settings.qrStyle || "rounded",
-    qrRoundness: settings.qrRoundness ?? 0.32,
-    qrShape: settings.qrShape || preset.shape,
-    qrGradient: settings.qrGradient || preset.gradient,
-    qrBackground: settings.qrBackground || preset.background,
-    qrTexture: settings.qrTexture || preset.texture,
-    qrImageSource: settings.qrImageSource || "",
+    qrRoundness: settings.qrRoundness ?? 0,
+    qrShape: settings.qrShape || settings.qrPointShape || "square",
+    qrGradient: settings.qrGradient || null,
+    qrGradientMode: settings.qrGradientMode || "diagonal",
+    qrBackground: settings.qrBackground || settings.lightColor || "#ffffff",
     logoSizeRatio: settings.logoSizeRatio || 0.22,
     logoRadiusRatio: settings.logoRadiusRatio ?? 0.2,
     logoBackground: settings.logoBackground !== false,
@@ -1990,13 +1594,12 @@ function resetForm() {
   state.encoded = "";
   state.logoSource = "";
   state.logoType = "none";
-  state.styleImageSource = "";
   setMode("text", { skipUpdate: true });
-  elements.qrStyle.value = "rounded";
-  applyStyleDefaults("rounded");
+  elements.qrGradientMode.value = "linear";
+  elements.qrGradientStart.value = "#1769e0";
+  elements.qrGradientEnd.value = "#14b8d2";
   updateLogoPresetButtons("none");
   syncRangeOutputs();
-  syncStyleCards();
   updateQr();
   setFeedback("Formulaire reinitialise.");
 }
